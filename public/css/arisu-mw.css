@@ -1,0 +1,208 @@
+@charset "utf-8";
+@import url('reset.css');
+@import url('arisu-common.css');
+
+.contents-mw { max-width:780px; padding:0 10px 30px; margin:0 auto; line-height:1.7em; font-family: 'Nanum Gothic', sans-serif; font-size: 14px; font-weight:300; color:#333; }
+.tit-mw-h1 { margin:30px 0 20px 0; font-size: 18px; color:#333;  font-weight: 700; }
+.tit-mw-h2 { margin:40px 0 10px 0; font-size: 18px; color:#333;  font-weight: 700; }
+
+/* 민원바로가기 */
+	.link-mw li { display:inline-block; float:left; width:16.66%; margin-bottom:20px; text-align:center; }
+	.link-mw li a { display:block; text-align:center;  line-height:1.5em; }
+	.link-mw li a img { border-radius:8px; background:#f0f4f7; transition: all ease 0.3s; border:1px solid #f0f4f7; }
+	.link-mw li a:hover span { color:#1c5cbe; }
+	.link-mw li a:hover img { color:#1c5cbe;  background:#fff;  border:1px solid #1c5cbe; box-shadow: 0 0px 5px rgb(0 0 0 / 25%); }
+	.link-mw li span { display:inline-block; width:100%; }
+	.link-mw-all {display:block; text-align:right; margin-top:-200px; width:99%; cursor: pointer;}
+	.ico-more-all { display:inline-block;  width:60px; padding: 0 10px 0 14px; background:url('./images/ico-more-all.png')no-repeat 0 50% !important; font-size:14px; font-weight:300; }
+
+
+/* 민원검색 */
+	.sch-mw-wrap { text-align:center; margin:40px 0 50px; }
+	.sch-mw { overflow:hidden; width:calc(100% - 100px); height:50px; padding:0 30px; margin:0 0 10px 20px;  background-color:#f0f4f7; border-radius:25px; transition: all ease 0.6s; }
+	.sch-mw li { display:inline-block; float:left; }
+	.sch-mw:hover { box-shadow: 0 0px 5px rgb(0 0 0 / 25%); }
+	.sch-mw input { display: inline-block; width: 100%; height:48px; background:rgba(255,255,255,0); border:0px;  font-size: 18px; font-weight: 700; }
+	.sch-mw button { display: inline-block; width: 48px; height: 48px;  background: url('./images/bg_search.png') 50% 50% no-repeat; }
+	.sch-mw .col-tx { width: calc(100% - 60px); }
+	.sch-mw .col-btn { width: 60px; }
+
+	.sch-mw-tag { width:calc(100% - 40px); margin-left:20px; }
+	.sch-mw-tag a { display: inline-block; height:24px; line-height:24px; padding:0 10px; margin:3px; border:1px solid #e4e8eb; border-radius:12px; transition: all ease 0.3s; }
+	.sch-mw-tag a:hover { border:1px solid #1c5cbe; background:#fff; color:#1c5cbe; }
+
+/* 민원서비스 */
+	.col-2 {  width: 50%; }
+	.g-mw-box { width:calc(100% - 62px); padding:10px 20px; margin: 0 0 20px 10px; background:#eaedf2; border:1px solid #eaedf2; border-radius:.28571429rem; }
+	.g-mw-box h4 { margin:10px 0 10px;  font-size: 18px; color:#333;  font-weight: 700; }
+	.g-mw-box a { display:block; height:35px; line-height:35px; padding: 0 10px; margin:5px 0; background:url('./images/anArrGo.png')no-repeat 97% 55%; font-size: 16px; background-color:#fff; border:1px solid #e4e8eb; border-radius:.28571429rem; transition: all ease 0.3s; }
+	.g-mw-box a:hover { background-color:#fff; border:1px solid #1c5cbe; color:#1c5cbe; box-shadow: 0 0px 3px rgb(0 0 0 / 25%); }
+
+/* 민원목록 */
+	.list-mw { width:calc(100% - 62px); padding:10px 20px; margin: 0 0 20px 10px; background:#eaedf2; border:1px solid #eaedf2; border-radius:.28571429rem; }
+	.list-mw h2 { margin:10px 0 10px;  font-size: 18px; color:#333;  font-weight: 700; }
+	.list-mw .tit-mw-h3 { margin:5px 0; padding:0 10px; font-size: 16px; color:#333;  font-weight: 500; border:1px solid #e8ebee !important; background:#fff; border-radius:.28571429rem; transition: all ease 0.3s; }
+	.list-mw .tit-mw-h3:hover { border:1px solid #1c5cbe !important; box-shadow: 0 0px 3px rgb(0 0 0 / 25%); }
+	.list-mw .tit-mw-h3 a { display:block; height:35px; line-height:35px; font-weight:400; background: url('./images/icoMinus.png') 98% 50% no-repeat; }
+	.list-mw .tit-mw-h3 a::before  { content: ""; color:#777; }
+	.list-mw .tit-mw-h3 .on { background: url('./images/icoPlus.png') 98% 50% no-repeat;  }
+
+
+
+/* 민원안내 */
+	.mw-box { width:calc(100% - 42px); padding:10px; margin: 0 0 10px 10px; background:#eaedf2; border:1px solid #eaedf2; border-radius:.28571429rem; }
+	.mw-box h2 { margin:10px 0 10px; font-size: 18px; color:#333;  font-weight: 700; }
+	.mw-box .info-alert {width:calc(100% - 52px); padding:10px 10px 10px 40px; background: url('./images/icoAlert.png') 10px 10px no-repeat; background-color:#fff; border:1px solid #dae1e6; border-radius:.28571429rem; }
+	.mw-box .bd-ln { border:1px solid #dae1e6 !important; }
+	.mw-box h2 a { display:block; background: url('./images/icoMinus.png') 98% 50% no-repeat; }
+
+/* 민원안내 */
+.info-mw-box { background:#fff !important; border:1px solid #e4e8eb !important; }
+
+/* 민원신청양식 */
+.tit-mw-h3 { margin:10px 0; padding-bottom:5px; font-size: 18px; color:#333;  font-weight: 700; }
+.tit-mw-h3 a { display:block; background: url('./images/icoMinus.png') 98% 50% no-repeat; }
+.tit-mw-h3 a::before  { content: ""; color:#777; }
+.tit-mw-h3 .on { background: url('./images/icoPlus.png') 98% 50% no-repeat; }
+
+.tit-mw-h4 { margin:30px 0 20px 0; padding-bottom:5px; font-size: 16px; color:#333;  font-weight: 500; border-bottom:1px solid #e4e8eb !important; }
+.tit-mw-h4 span::before  { content: ""; color:#777; }
+
+.tit-mw-h5 { margin:20px 0 5px; font-size: 16px; color:#333;  font-weight: 700; }
+.tit-mw-h5:first-child { margin-top:0; }
+.tit-mw-h5 span::before  { content: ""; color:#777; }
+
+.form-alert {width:calc(100% - 62px); padding:20px 20px 20px 40px; background: url('./images/icoAlert.png') 10px 22px no-repeat; border:1px solid #e4e8eb; border-radius:.28571429rem; text-align:justify; }
+.form-mw-box {width:calc(100% - 42px); padding:20px; margin-bottom:5px; background:#fff; border:1px solid #e8ebee; border-radius:.28571429rem; }
+.form-mv li { padding:5px 0 5px 0; }
+.form-mv li:before, .form-mv li:after { display:block; content:''; clear:both; }
+
+
+.form-mv input[type="text"], .form-mv input[type="password"], .form-mv select { height:30px; line-height:30px; padding:3px 0 3px 15px ; background:rgba(255,255,255,0); border:1px solid #fff;  font-size: 14px; }
+.form-mv select { height:42px;  line-height:38px; background:url('./images/icoArrDownSel.png') 100% 50% no-repeat; -webkit-appearance: none; -moz-appearance: none; -o-appearance:none; appearance: none; }
+.form-mv select::-ms-expand { display: none; }
+.form-mv select option { margin: 50px !important; font-size: 16px; }
+
+/* 체크박스*/
+.form-mv input[type="checkbox"] { position: absolute; z-index:-10; width: 1px; height: 1px; border: 1px; opacity: 1; }
+.form-mv input[type="checkbox"]:focus + .chk-type { padding: 0 25px 5px; background: url('./images/icoChkBoxOver.png') 0 0 no-repeat; background-size: 16px 16px;  font-size: 14px; }
+.form-mv input[type="checkbox"] + .chk-type { padding: 0 25px 5px; background: url('./images/icoChkBox.png') 0 0  no-repeat; background-size: 16px 16px; font-size: 14px;  }
+.form-mv input[type="checkbox"]:checked + .chk-type { z-index:100; padding: 0 25px 5px; background: url('./images/icoChkBoxChk.png') 0 0  no-repeat; background-size:16px 16px; font-size: 14px; }
+.form-mv input[type="checkbox"]:disabled + .chk-type { z-index:100; padding: 0 25px 5px; background: url('./images/icoChkBoxD.png') 0 0 no-repeat; background-size:16px 16px; font-size: 14px; }
+.form-mv input[type="checkbox"] + .chk-type span { display:inline-block; vertical-align: top; }
+
+.form-mv .form-req::after { content: " * "; color:#d0021b; }
+.form-mv .input-label { display:inline-block; width:200px; font-size: 18px; font-weight: 700; vertical-align:top; }
+.form-mv .input-label-1 { display:block;  font-size: 18px; font-weight: 700; vertical-align:top; }
+.form-mv .txStrong { font-size:18px; }
+.input-box { border-bottom:1px solid #cbd2d8 !important; }
+.textarea-box { width:calc(100% - 20px);  height:100px; padding:10px; background:#fff; border:1px solid #cbd2d8 !important; border-radius:5px; }
+
+.input-w-0 { width:100%; }
+.input-w-1 { width:calc(100% - 220px); }
+.input-w-2 { width:220px; }
+.input-w-3 { width:100px; }
+.input-w-mail { width:100px; }
+.input-w-mail2 { width:150px; }
+.input-w-fix { width:120px; }
+
+.form-add .input-w-1 {  width:calc(100% - 20px); }
+.form-info { display:inline-block; font-size:14px;  }
+.form-cmt { display:block; margin:10px 0 10px 200px; line-height:1.6em; font-size:14px; }
+.form-cmt-1 { margin:0 0 0 0; padding-top:5px; }
+.form-cmt a { display:inline-block; color:#1c5cbe; }
+.form-cmt a:hover { text-decoration: underline; }
+.form-info-box {  padding:15px !important; margin-top:10px; background:#f8ffff; border:1px solid #a9d5de; border-radius:.28571429rem; word-break:break-all;word-wrap:break-word; }
+
+.mw-info-label {display:inline-block; width:85px; color:#aaa; }
+.mw-info-label::before { content: "-  "; }
+.form-btn-wrap { margin:20px; text-align:center; }
+.info-btn-wrap { margin:15px 0 0; text-align:center; }
+
+.form-mv .datepicker { background: url('./images/month.png') 100% 50% no-repeat !important; cursor:default;  }
+
+/* 민원안내 테이블 */
+.info-mw-table { border-top:2px solid #575757; margin:20px 0; }
+.info-mw-table table th, .info-mw-table table td { line-height:25px; padding:12px; border-bottom:1px solid #e4e8eb; background:#fff; color:#222; vertical-align:middle; word-break:normal; word-wrap:break-word; }
+.info-mw-table table tr td:last-child, .tb-wrap table tr th:last-child { border-right:0; }
+.info-mw-table table thead + tbody th, .info-mw-table table th { text-align:center; font-weight:500; background-color:#f4f6f8; }
+.td-name { width:15%; min-width:70px; }
+
+.info-mw-list li { margin:5px 0; line-height:1.6em; }
+.info-mw-list li::before  { content: "- "; color:#777; }
+
+@media (max-width:800px) {
+	.contents-mw { font-size: 14px; padding:0 5px 30px; }
+	.link-mw li { width:33.33%; font-size: 14px; }
+	.link-mw-all { position:absolute; top:30px; right:10px; margin-top:0;  }
+	.tit-mw-h1 { margin-left:10px; font-size: 16px; }
+	.tit-mw-h2 { font-size: 16px; }
+	.mw-box h2 { font-size: 16px; }
+
+	.sch-mw-wrap { margin:20px 0 30px; }
+	.sch-mw { height:40px; margin:20px 0 10px 20px; }
+	.sch-mw input { height:40px; line-height:40px; font-size: 16px; }
+	.sch-mw button { width: 40px; height: 40px;  background: url('./images/bg_search.png') 50% 50% no-repeat; }
+
+	.col-2 {  width: 100%; }
+	.g-mw-box h4 { font-size:16px; }
+	.g-mw-box a { font-size:14px; }
+	.g-mw-box { width:calc(100% - 22px); padding:10px 5px; margin: 0 0 10px 5px; }
+
+	.list-mw { width:calc(100% - 22px); padding:10px 5px; margin: 0 0 10px 5px; }
+	.list-mw h2 { font-size:16px; }
+	.list-mw .tit-mw-h3 a { display:block; height:25px; line-height:25px; font-size:14px; background: url('./images/icoMinus.png') 98% 50% no-repeat; }
+
+	.tit-mw-h3, .list-mw .tit-mw-h3 { padding:5px 10px; margin:0 0 5px;  font-weight:700; font-size: 16px; }
+
+	.form-mv .input-label { display:block; margin-top:10px; font-size: 16px; }
+	.form-mv .input-label-1 { font-size: 16px; }
+	.form-mv .txStrong { font-size:16px; }
+
+	.textarea-box { width:calc(100% - 20px); }
+	.form-cmt { display:block; margin:10px 0; }
+	.input-w-1, .input-w-2 { display:block;  width:calc(100% - 15px); }
+	.input-w-3 { width:calc(45% - 15px); margin-bottom:20px; }
+	.input-w-mail {  width:calc(28% - 15px); }
+	.input-w-mail2 { width:calc(30% - 15px); }
+
+	.btn { margin-top:10px; }
+
+
+	.form-mv input[type="checkbox"] + .chk-type {  vertical-align: top; }
+	.form-mv input[type="checkbox"] + .chk-type span { vertical-align: top; }
+
+	.info-mw-table table th, .info-mw-table table td { padding:12px 5px; font-size:12px; }
+	.td-name { width:15%; min-width:50px; }
+
+	.form-info-box { padding:20px 10px; }
+	.mw-info-label {display:inline-block; width:auto; }
+	.mw-info-label::after { content: " : "; }
+	.m-br { margin-top:-10px; }
+}
+
+
+@media (max-width:400px) {
+	.contents-mw { font-size: 12px; padding:0; }
+	.mw-box { width:calc(100% - 22px); padding:0 5px 5px; margin: 0 0 5px 5px; }
+
+	.mw-info-label {display:block; margin-top:5px; }
+	.mw-info-label::before, .mw-info-label::after { content: ""; }
+
+	.input-w-3 { display:block;  width:calc(100% - 15px); }
+	.input-w-mail { width:calc(45% - 15px); }
+	.input-w-mail2 {  display:block; width:100%; }
+
+	.m-hide { display:none !important; }
+	.m-block { display:block; }
+}
+
+
+
+
+
+
+
+
+
+

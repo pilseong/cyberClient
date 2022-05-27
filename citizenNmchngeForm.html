@@ -1,0 +1,110 @@
+      <!DOCTYPE html>
+      <html lang="ko">
+
+      <head>
+        <meta charset="utf-8">
+        <meta name="Referrer" content="origin">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+
+        <title>서울시 상수도사업본부</title>
+
+        <!-- css  -->
+        <link rel="stylesheet" href="/css/ncitizen/arisu-mw.css">
+
+        <!-- js  -->
+        <script src="/js/ncitizen/jquery-3.6.0.min.js"></script>
+        <script src="/js/ncitizen/uiux-common.js"></script>
+
+        <script>
+          function init() {
+            document.title = "민원신청 | 온라인민원 | 서울시 상수도사업본부"; //현재페이지 제목
+          }
+        </script>
+      </head>
+
+      <body onload="init();">
+        <!-- 콘텐츠 -->
+        <div class="contents-mw row">
+          <div class="tit-mw-h1"><span class="txStrongColor">자주 찾는 민원신청</span> <span class="m-hide">서비스입니다.</span></div>
+
+          <!-- 민원바로가기 -->
+          <div class="link-mw-wrap row">
+            <div class="link-mw row">
+              <ul>
+                <li>
+                  <a onclick="location.href='citizenNmchngeForm.html?userKey=${userKey}&minwonCd=B04';"><img
+                      src="/images/ncitizen/ico-q-01.png" alt="소유자(사용자) 명의변경" /><span>소유자(사용자)<br />명의변경</span></a>
+                </li>
+                <li>
+                  <a onclick="location.href='citizenNmchngeForm.html?userKey=${userKey}&minwonCd=B25';"><img
+                      src="/images/ncitizen/ico-q-02.png" alt="수도요금 바로알림신청" /><span>수도요금<br />바로알림신청</span></a>
+                </li>
+                <li>
+                  <a onclick="location.href='citizenNmchngeForm.html?userKey=${userKey}&minwonCd=B14';"><img
+                      src="/images/ncitizen/ico-q-03.png" alt="자동납부(계좌) 신청/해지" /><span>자동납부(계좌)<br />신청/해지</span></a>
+                </li>
+                <li>
+                  <a onclick="location.href='citizenNmchngeForm.html?userKey=${userKey}&minwonCd=B19';"><img
+                      src="/images/ncitizen/ico-q-04.png" alt="전자고지 신청/해지" /><span>전자고지<br />신청/해지</span></a>
+                </li>
+                <li>
+                  <a href="#"><img src="/images/ncitizen/ico-q-05.png" alt="누수요금 적용신청" /><span>누수요금<br />적용신청</span></a>
+                </li>
+                <li>
+                  <a href="05.html"><img src="/images/ncitizen/ico-q-06.png"
+                      alt="계량기 교체신청" /><span>계량기<br />교체신청</span></a>
+                </li>
+              </ul>
+            </div>
+            <div class="link-mw-all">
+              <a onclick="searchPoofPayment()">
+                <span class="ico-more-all"> 전체보기</span>
+              </a>
+            </div>
+          </div>
+          <!-- //link-mw-wrap -->
+
+          <form>
+
+            <div class="form-m-wrap row">
+              <div class="mw-box bgStrong">
+                <h2 class="txWhite"><span class="i-99">소유자(사용자)명의변경 신고</span></h2>
+                <div class="info-alert">
+                  이사 통합민원은 <span class="txStrongColor">소유자(사용자)명의변경 신고, 자동납부(계좌) 신규/해지, 수도요금 바로알림 신규/변경/해지, 전자고지
+                    신규/변경/해지</span> 의 4가지 민원으로 한번에 신청할 수 있습니다.
+                </div>
+              </div><!-- //mw-box -->
+
+
+              <div id="app">
+
+              </div>
+
+              <!-- 버튼영역 -->
+              <div class="form-btn-wrap row">
+                <button type="button" class="btn btnM btnWL" id="prev"
+                  onClick="app.setPage(app.state.page-1)">이전단계</button>
+                <button type="button" class="btn btnM btnWL" id="next"
+                  onClick="app.setPage(app.state.page+1)">다음단계</button>
+                <button type="button" class="btn btnM btnWL" id="summaryPage"
+                  onClick="app.registerMinwon(app.state.page+1)">확인 및 등록</button>
+                <button type="button" class="btn btnM btnWL" id="btnCvplApply" onClick="">민원신청</button>
+                <button type="button" class="btn btnM btnDGray btnWM" onclick="fncCivilCancel();">취소</button>
+                <button type="button" class="btn btnM btnDGray btnWM" onclick="clearForm(this.form);">초기화</button>
+
+              </div><!-- //form-btn-wrap -->
+
+            </div><!-- /form-mw-wrap -->
+          </form>
+        </div><!-- /contents-mw -->
+        <script src="/js/ncitizen/UnityMinwon.js"></script>
+        <script src="/js/ncitizen/SuyongaPage.js"></script>
+        <script src="/js/ncitizen/InfoPanel.js"></script>
+        <script src="/js/ncitizen/B04Detail.js"></script>
+        <script src="/js/ncitizen/SummaryPage.js"></script>
+        <script src="/js/ncitizen/unity_resource.js"></script>
+        <script src="/js/ncitizen/unity_minwon.js"></script>
+      </body>
+
+      </html>
