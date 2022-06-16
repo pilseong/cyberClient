@@ -3,42 +3,65 @@
  */
 
 class InfoPanel {
-  constructor(title, root, path) {
+  constructor(title, root, owner, callbackName) {
     this.title = title;
     this.root = root;
-    this.path = path;
+    this.owner = owner;
+    this.callbackName = callbackName;
     this.data = {};
   }
 
-  setData(data) {
-    console.log(data);
-    this.data = eval(data);
+  setData() {
+    this.data = this.owner[this.callbackName]();
   }
 
   render() {
     const that = this;
-    
+
     // 데이터를 가지고 온다.
-    this.setData(this.path);
-    
+    this.setData();
+
     let template = '';
-    let head = `
-      <li>
-        <div class="txStrong">${that.title}</div>
-        <p class="display-block form-info form-info-box">
-    `;
-
-    console.log(this.data);
-
-    let body = '';
-    for (const property in this.data) {
-      body += `<span class="mw-info-label">${that.data[property][1]}</span> ${that.data[property][0]} <br>`;
+    
+    if (Object.keys(this.data).length > 1) {      
+      const head = `
+        <ul>
+          <div class="txStrong">${that.title}</div>
+          <div class="display-block form-info form-info-box">
+      `;
+      template += head;
     }
 
-    let tail = `     
-        </p>
-      </li>`;
 
-    return template = head + body + tail;
+    for (const property in this.data) {
+      let innerHead = `
+        <li>
+          <div class="txStrong">${that.data[property]['title']}</div>
+          <p class="display-block form-info form-info-box">
+      `;
+      let body = '';
+      for (const item in this.data[property]) {
+        if (item !== 'title')
+          body += `<span class="mw-info-label">${that.data[property][item][1]}</span> ${that.data[property][item][0]} <br>`;
+      }
+
+      let innerTail = `     
+          </p>
+        </li>
+      `;
+
+      template += innerHead + body + innerTail;
+    }
+
+    if (Object.keys(this.data).length > 1) {      
+      const tail = `     
+          </div>
+        </ul>
+      `;
+      template += tail;
+    }
+
+
+    return template;
   }
 }

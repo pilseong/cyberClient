@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <!--   <meta charset="utf-8"> -->
+  <meta name="Referrer" content="origin" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+
+  <title>서울시 상수도사업본부</title>
+
+  <!-- css  -->
+  <link rel="stylesheet" href="/public/css/arisu-mw.css" />
+
+  <!-- js  -->
+  <script src="/src/jquery-3.6.0.min.js"></script>
+  <script src="/src/uiux-common.js"></script>
+  <script>
+    try {
+      document.domain = "seoul.go.kr";
+    } catch (e) { }
+
+    function init() {
+      document.title = "온라인민원 | 서울시 상수도사업본부"; // 현재페이지 제목
+
+      $('#result-list').hide();
+      //showAllMenus();/
+      parentCall();
+      scrollTop();
+    }
+
+    function parentCall() {
+      setTimeout(function () {
+        try {
+          parent.setResponsive();
+        } catch (e) { }
+      }, 110);
+    }
+
+    function scrollTop() {
+      try {
+        parent.scrollTop();
+      } catch (e) { }
+    }
+  </script>
+</head>
+
+<body onload="init();">
+  <!-- 콘텐츠 -->
+  <div class="contents-mw row">
+    <div class="tit-mw-h1">
+      <span class="txStrongColor">자주 찾는 민원신청</span>
+      <span class="m-hide">서비스입니다.</span>
+    </div>
+
+    <!-- 민원바로가기 -->
+    <div class="link-mw-wrap row">
+      <div class="link-mw row">
+        <ul>
+          <li>
+            <a onclick="cyberMinwon.goMinwon('B04');"><img src="public/images/ico-q-01.png"
+                alt="소유자(사용자) 명의변경" /><span>소유자(사용자)<br />명의변경</span></a>
+          </li>
+          <li>
+            <a onclick="cyberMinwon.goMinwon('B25');"><img src="public/images/ico-q-02.png"
+                alt="수도요금 바로알림신청" /><span>수도요금<br />바로알림신청</span></a>
+          </li>
+          <li>
+            <a onclick="cyberMinwon.goMinwon('B14');"><img src="public/images/ico-q-03.png"
+                alt="자동납부(계좌) 신청/해지" /><span>자동납부(계좌)<br />신청/해지</span></a>
+          </li>
+          <li>
+            <a onclick="cyberMinwon.goMinwon('B19');"><img src="public/images/ico-q-04.png"
+                alt="전자고지 신청/해지" /><span>전자고지<br />신청/해지</span></a>
+          </li>
+          <li>
+            <a href="#"><img src="public/images/ico-q-05.png" alt="누수요금 적용신청" /><span>누수요금<br />적용신청</span></a>
+          </li>
+          <li>
+            <a href="05.html"><img src="public/images/ico-q-06.png" alt="계량기 교체신청" /><span>계량기<br />교체신청</span></a>
+          </li>
+        </ul>
+      </div>
+      <div class="link-mw-all">
+        <a onclick="showAllMenus()">
+          <span class="ico-more-all"> 민원포탈</span>
+        </a>
+      </div>
+    </div>
+    <!-- //link-mw-wrap -->
+
+    <!-- 민원검색 -->
+    <div id="app">
+
+    </div>
+  </div>
+  <!-- //list-mw -->
+  <script src="/src/unity_resource.js"></script>
+  <script src="/src/FrontPage.js"></script>
+  <script src="/src/SuyongaPage.js"></script>
+  <script src="/src/InfoPanel.js"></script>
+  <script src="/src/B04Detail.js"></script>
+  <script src="/src/B14Detail.js"></script>
+  <script src="/src/B19Detail.js"></script>
+  <script src="/src/B25Detail.js"></script>
+  <script src="/src/SummaryPage.js"></script>
+  <script src="/src/UnityMinwon.js"></script>
+  <script src="/src/CyberMinwon.js"></script>
+  <script src="/src/boot.js"></script>
+</body>
+
+</html>

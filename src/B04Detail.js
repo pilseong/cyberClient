@@ -2,10 +2,10 @@
  * 소유자, 사용자 명의 변경 상세 화면
  */
 class B04DetailPage {
-  constructor(parent, root) {
+  constructor(parent, minwonCd) {
     this.state = {
+      minwonCd,
       parent,
-      root,
       ownerCheck: false,
       userCheck: false,
       reason: '',
@@ -18,6 +18,7 @@ class B04DetailPage {
         ownerChangeDate: new Date().toLocaleDateString('en-CA')
       },
       userInfo: {
+        // 0이 개인, 1이 법인
         gubun: '0',
         userName: '',
         userBusinessNumber: '',
@@ -27,15 +28,147 @@ class B04DetailPage {
       },
       viewRequestInfo: {
 
+      },
+      description: {
+
       }
     };
+
+    this.getDescription();
+  }
+
+  // 초기값 설정
+  setInitValue() {
+
+  }
+
+  // 명의 변경 서비스를 서버로 요청한다.
+  getDescription() {
+    const that = this;
+
+    var url = "http://localhost:3000/citizen/common/listCitizenCvplDfn.do";
+    var queryString = {
+      'minwonCd': this.state.minwonCd
+    };
+
+    fetch('GET', url, queryString, function (error, data) {
+      // 에러가 발생한 경우
+      if (error) {
+        alert("서버가 응답하지 않습니다. 잠시 후 다시 조회해 주세요.");
+        return;
+      }
+
+      that.setState({
+        ...that.state,
+        description: data[0]
+      })
+      console.log(data);
+      console.log('after fetching', that.state);
+    });
   }
 
   setState(nextState) {
     this.state = nextState;
   }
 
-  setEventListeners() {
+  getViewInfo() {
+    const infoData = {};
+    if (this.state.userCheck) {
+      infoData['userInfo'] = {
+        title: '사용자 입력정보',
+        gubun: [this.state.userInfo.gubun === '0' ? '개인' : '법인', '구분'],
+        name: [this.state.userInfo.userName, '이름'],
+        phone: [this.state.userInfo.userPhone, '전화번호'],
+        mobile: [this.state.userInfo.userMobile, '휴대폰'],
+        changeDate: [this.state.userInfo.userChangeDate, '변경일'],
+        changeReason: [this.state.reason, '변경사유']
+      };
+
+      // 사업자 번호는 구분에 따라서 표출여부가 결정된다.
+      if (this.state.userInfo.gubun === '1') {
+        infoData['userInfo']['businessNumber'] = [this.state.userInfo.userBusinessNumber, '사업자번호'];
+      }
+    }
+
+    if (this.state.ownerCheck) {
+      infoData['ownerInfo'] = {
+        title: '소유자 입력정보',
+        gubun: [this.state.ownerInfo.gubun === '0' ? '개인' : '법인', '구분'],
+        name: [this.state.ownerInfo.ownerName, '이름'],
+        businessNumber: [this.state.ownerInfo.ownerBusinessNumber, '사업자번호'],
+        phone: [this.state.ownerInfo.ownerPhone, '전화번호'],
+        mobile: [this.state.ownerInfo.ownerMobile, '휴대폰'],
+        changeReason: [this.state.reason, '변경사유']
+      };
+
+      // 사업자 번호는 구분에 따라서 표출여부가 결정된다.
+      if (this.state.ownerInfo.gubun === '1') {
+        infoData['ownerInfo']['businessNumber'] = [this.state.ownerInfo.ownerBusinessNumber, '사업자번호'];
+      }
+    }
+
+    return infoData;
+  }
+
+
+  verify() {
+    const ownerInfo = this.state.ownerInfo;
+    const userInfo = this.state.userInfo;
+
+    if (!this.state.ownerCheck && !this.state.userCheck) {
+      alert("소유자 명의 변경 신청 정보가 없습니다.");
+      return false;
+    }
+
+    if (!this.state.reason) {
+      alert("소유자 명의 변경 신청사유를 입력해 주세요.");
+      return false;
+    }
+
+    // 소유자 명의 변경 체크
+    if (this.state.ownerCheck) {
+      if (!ownerInfo.ownerName) {
+        alert("소유자 명의 변경 변경할 소유자의 이름을 입력해 주세요.");
+        return false;
+      }
+
+      if (ownerInfo.gubun === '1') {
+        if (!ownerInfo.ownerBusinessNumber) {
+          alert("소유자 명의 변경 변경할 소유자의 사업자번호를 입력해 주세요.");
+          return false;
+        }
+      }
+
+      if (!ownerInfo.ownerPhone && !ownerInfo.ownerMobile) {
+        if (!ownerInfo.ownerName) {
+          alert("소유자 명의 변경 변경할 소유자의 전화번호를 입력해 주세요.");
+          return false;
+        }
+      }
+    }
+
+    // 사용자 명의 변경 체크
+    if (this.state.userCheck) {
+      if (!userInfo.userName) {
+        alert("사용자 명의 변경 변경할 사용자의 이름을 입력해 주세요.");
+        return false;
+      }
+
+      if (userInfo.gubun === '1') {
+        if (!userInfo.userBusinessNumber) {
+          alert("사용자 명의 변경 변경할 사용자의 사업자번호를 입력해 주세요.");
+          return false;
+        }
+      }
+
+      if (!userInfo.userPhone && !userInfo.userMobile) {
+        if (!userInfo.userName) {
+          alert("사용자 명의 변경 변경할 사용자의 전화번호를 입력해 주세요.");
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   // 법인 / 개인 선택 시 UI 변경 처리
@@ -82,17 +215,49 @@ class B04DetailPage {
     this.render();
   }
 
+  // 사용자 전화번호 연동
+  handleUserPhone(e) {
+    console.log(e.target.value.substring(0, 11));
+    this.setState({
+      ...this.state,
+      userInfo: {
+        ...this.state.userInfo,
+        userPhone: e.target.value.substring(0, 11)
+      },
+      viewRequestInfo: {
+        ...this.state.viewRequestInfo,
+        userPhone: [e.target.value.substring(0, 11), "일반전화"]
+      }
+    });
+    phoneNumberInputValidation(e.target, 11, /(02|0\d{2})(\d{3,4})(\d{4})/g);
+  }
+
   // 소유자 전화번호 연동
   handleOwnerPhone(e) {
-    console.log(e.target.value.substring(0, 10));
+    console.log(e.target.value.substring(0, 11));
     this.setState({
       ...this.state,
       ownerInfo: {
         ...this.state.ownerInfo,
-        ownerPhone: e.target.value.substring(0, 10)
+        ownerPhone: e.target.value.substring(0, 11)
       }
     });
-    e.target.value = this.state.ownerInfo.ownerPhone.substring(0, 10);
+    e.target.value = this.state.ownerInfo.ownerPhone.substring(0, 11);
+    phoneNumberInputValidation(e.target, 11, /(02|0\d{2})(\d{3,4})(\d{4})/g);
+  }
+
+  // 사용자 휴대번호 연동
+  handleUserMobile(e) {
+    console.log(e.target.value.substring(0, 11));
+    this.setState({
+      ...this.state,
+      userInfo: {
+        ...this.state.userInfo,
+        userMobile: e.target.value.substring(0, 11)
+      }
+    });
+    e.target.value = this.state.userInfo.userMobile.substring(0, 11);
+    phoneNumberInputValidation(e.target, 11, /(010)(\d{3,4})(\d{4})/g);
   }
 
   // 소유자 휴대번호 연동
@@ -106,6 +271,21 @@ class B04DetailPage {
       }
     });
     e.target.value = this.state.ownerInfo.ownerMobile.substring(0, 11);
+    phoneNumberInputValidation(e.target, 11, /(010)(\d{3,4})(\d{4})/g);
+
+  }
+
+  // 사용자 이름 연동
+  handleUserName(e) {
+    console.log(e.target.value.substring(0, 30));
+    this.setState({
+      ...this.state,
+      userInfo: {
+        ...this.state.userInfo,
+        userName: e.target.value.substring(0, 30)
+      }
+    });
+    e.target.value = this.state.userInfo.userName.substring(0, 30);
   }
 
   // 소유자 이름 연동
@@ -132,45 +312,6 @@ class B04DetailPage {
       }
     });
     e.target.value = this.state.ownerInfo.ownerBusinessNumber.substring(0, 10);
-  }
-
-  // 사용자 전화번호 연동
-  handleUserPhone(e) {
-    console.log(e.target.value.substring(0, 10));
-    this.setState({
-      ...this.state,
-      userInfo: {
-        ...this.state.userInfo,
-        userPhone: e.target.value.substring(0, 10)
-      }
-    });
-    e.target.value = this.state.userInfo.userPhone.substring(0, 10);
-  }
-
-  // 사용자 휴대번호 연동
-  handleUserMobile(e) {
-    console.log(e.target.value.substring(0, 11));
-    this.setState({
-      ...this.state,
-      userInfo: {
-        ...this.state.userInfo,
-        userMobile: e.target.value.substring(0, 11)
-      }
-    });
-    e.target.value = this.state.userInfo.userMobile.substring(0, 11);
-  }
-
-  // 사용자 이름 연동
-  handleUserName(e) {
-    console.log(e.target.value.substring(0, 30));
-    this.setState({
-      ...this.state,
-      userInfo: {
-        ...this.state.userInfo,
-        userName: e.target.value.substring(0, 30)
-      }
-    });
-    e.target.value = this.state.userInfo.userName.substring(0, 30);
   }
 
   // 사용자 사업자번호 연동
@@ -221,49 +362,88 @@ class B04DetailPage {
     console.log(this.state.reason)
   }
 
+  // 명의 변경 서비스를 서버로 요청한다.
+  submitApplication() {
+    const that = this;
+
+    var url = gContextUrl + "/citizen/common/procApplyNmchnge.do";
+    var queryString = this.getQueryString();
+
+    fetch('POST', url, queryString, function (error, data) {
+      // 에러가 발생한 경우
+      if (error) {
+        alert("소유자/사용자 명의변경 신청이 정상적으로 처리되지 않았습니다.");
+        return;
+      }
+      console.log(data);
+
+      console.log('after fetching', that.state);
+      that.render();
+    });
+  }
+
+  getQueryString() {
+    const pattern = /(02|0\d{2})(\d{3,4})(\d{4})/g
+
+    const ownerInfo = this.state.ownerInfo;
+    const userInfo = this.state.userInfo;
+
+    const ownerPhoneArr = pattern.exec(ownerInfo.ownerPhone);
+    const ownerMobileArr = pattern.exec(ownerInfo.ownerMobile);
+
+    const userPhoneArr = pattern.exec(userInfo.userPhone);
+    const userMobileArr = pattern.exec(userInfo.userMobile);
+
+    const nameChangeData = {
+      // 통합 민원 데이터 셋 바인딩
+      'nmchngeVO.gubun': this.state.ownerCheck && this.state.userCheck ?
+        '소유자및사용자' :
+        this.state.ownerCheck ? '소유자' : '사용자',
+      'nmchngeVO.changeDesc': this.state.reason,
+      'nmchngeVO.nowNm': ownerInfo.ownerName,
+      'nmchngeVO.jooNo1': ownerInfo.ownerBusinessNumber,
+      'nmchngeVO.jooNo2': '',
+      'nmchngeVO.nowOwnTelno1': ownerPhoneArr ? ownerPhoneArr[1] : '',
+      'nmchngeVO.nowOwnTelno2': ownerPhoneArr ? ownerPhoneArr[2] : '',
+      'nmchngeVO.nowOwnTelno3': ownerPhoneArr ? ownerPhoneArr[3] : '',
+      'nmchngeVO.nowOwnHpno1': ownerMobileArr ? ownerMobileArr[1] : '',
+      'nmchngeVO.nowOwnHpno2': ownerMobileArr ? ownerMobileArr[2] : '',
+      'nmchngeVO.nowOwnHpno3': ownerMobileArr ? ownerMobileArr[3] : '',
+      'nmchngeVO.nowOwnChDt': ownerInfo.ownerChangeDate && ownerInfo.ownerChangeDate.replaceAll('-', '/'),
+      'nmchngeVO.nowUseNm': userInfo.userName,
+      'nmchngeVO.nowUseJooNo1': userInfo.userBusinessNumber,
+      'nmchngeVO.nowUseJooNo2': '',
+      'nmchngeVO.nowUseTelno1': userPhoneArr ? userPhoneArr[1] : '',
+      'nmchngeVO.nowUseTelno2': userPhoneArr ? userPhoneArr[2] : '',
+      'nmchngeVO.nowUseTelno3': userPhoneArr ? userPhoneArr[3] : '',
+      'nmchngeVO.nowUseHpno1': userMobileArr ? userMobileArr[1] : '',
+      'nmchngeVO.nowUseHpno2': userMobileArr ? userMobileArr[2] : '',
+      'nmchngeVO.nowUseHpno3': userMobileArr ? userMobileArr[3] : '',
+      'nmchngeVO.nowUseChDt': userInfo.userChangeDate && userInfo.userChangeDate.replaceAll('-', '/')
+    };
+
+    return {
+      ...this.state.parent.state.suyongaInfoPage.getSuyongaQueryString(),
+      'cvplInfo.cvpl.minwonCd': this.state.minwonCd,
+      ...nameChangeData
+    };
+  }
+
   render() {
+    const that = this;
+
     let template = `
-      <div class="mw-box">
+      <div class="mw-box" id="desc">
         <div id="form-mw0" class="row">
-          <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="showHideLayer('#form-mw0');" class="on" title="닫기">
-            <span class="i-06 txStrongColor">민원안내 및 처리절차</span></a></div>
-          <div class="form-mw-box display-none row">
-  
-            <div class="info-mw row">
-              <div class="tit-mw-h5 row"><span>계량기고장유형</span></div>
-              <div class="info-mw-list">
-                <ul>
-                  <li>동파 : 겨울철 동결로 유리부가 파손되어 판독이 불가한 경우</li>
-                  <li>외갑누수 : 계량기 외갑에서 물이 새어 나올 경우</li>
-                  <li>화상 : 화재 또는 해빙작업 등으로 손상을 입은 경우</li>
-                  <li>초파 : 사용자 관리부주의로 유리부가 파손된 경우</li>
-                  <li>망실 : 계량기가 분실된 경우</li>
-                  <li>침비 : 계량기 숫자의 일부 단위 작동상태가 비정상인 경우</li>
-                  <li>불회전·회전불량 : 수돗물을 사용하고 있음에도 계량기 숫자가 회전하지 않거나, 회전상태가 불량인 경우</li>
-                </ul>
-              </div>
-  
-              <div class="tit-mw-h5 row"><span>신청방법</span></div>
-              - 수도사업소 방문, 전화, 인터넷 등으로 신청가능 합니다.<br>
-              <div class="tit-mw-h5 row"><span>처리기간</span></div>
-              - 법정 5일, 신속 3일<br>
-              <div class="tit-mw-h5 row"><span>처리부서</span></div>
-              - 수도사업소 요금과, 현장민원과 ( 총괄부서: 본부 계측관리과 )<br>
-              <div class="tit-mw-h5 row"><span>신청서류</span></div>
-              - 수도계량기 교체 신청서<br>
-              <div class="tit-mw-h5 row"><span>관련법규</span></div>
-              - 민원 처리에 관한 법률 제2조<br>
-              <div class="tit-mw-h5 row"><span>처리절차</span></div>
-              01.계량기교체신청(동파,몸통누수) → 02.계량기교체(요금과,현장민원과) → 03.계량기대금부과(몸통누수 제외)→ 04.계량기교체신청(열손상,유리파손,망실,지침비정상) → 05.현장조사(요금과) → 06.계량기교체(요금과, 현장민원과)→ 07.계량기대금 및 설치대금부과 → 08.계량기교체신청(고장발생분) → 09.요금조정(요금관리팀) → 10.계량기교체(요금과, 현장민원과)
-            </div>
+          <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw0');" class="on" title="닫기">
+            <span class="i-06 txStrongColor">민원안내 및 처리절차</span></a>
           </div>
         </div><!-- // info-mw -->
       </div><!-- // mw-box -->
-  
       <!-- 신청내용 -->
       <div class="mw-box">
       <div id="form-mw21" class="row">
-        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="showHideLayer('#form-mw21');" title="닫기">
+        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw21');" title="닫기">
         <span class="i-01">명의변경 신청</span></a></div>
         <div class="form-mw-box display-block row">
           <div class="form-mv row">
@@ -271,10 +451,10 @@ class B04DetailPage {
               <li>
                 <label class="input-label-1"><span>명의변경 대상을 선택하세요.</span></label>
                 <ul class="mw-opt mw-opt-6 row">
-                  <li id="aGubun1" class="off"><a onClick="detailB04.toggleUIGubun('userCheck', '#aGubun1','#mw-box1')">
+                  <li id="aGubun1" class="off"><a onClick="cyberMinwon.state.currentModule.state.currentPage.toggleUIGubun('userCheck', '#aGubun1','#mw-box1')">
                     <span>사용자</span></a>
                   </li>
-                  <li id="aGubun2" class="off"><a onClick="detailB04.toggleUIGubun('ownerCheck', '#aGubun2','#mw-box2')">
+                  <li id="aGubun2" class="off"><a onClick="cyberMinwon.state.currentModule.state.currentPage.toggleUIGubun('ownerCheck', '#aGubun2','#mw-box2')">
                     <span>소유자</span></a>
                   </li>
                 </ul>
@@ -286,8 +466,8 @@ class B04DetailPage {
               </li>
               <li>
                 <label for="form-mw22-tx" class="input-label-1"><span>변경사유를 입력하세요.</span></label>
-                <input onkeyup="detailB04.handleReason(event)" onchange="detailB04.handleReason(event)"
-                  value="${detailB04.state.reason}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleReason(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleReason(event)"
+                  value="${that.state.reason}"
                   type="text" id="form-mw22-tx" class="input-box input-w-0" placeholder="변경사유">
               </li>
             </ul>
@@ -299,7 +479,7 @@ class B04DetailPage {
       <!-- 사용자정보 -->
       <div id="mw-box1" class="mw-box display-none row">
       <div id="form-mw22" class="row">
-        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="showHideLayer('#form-mw22');" title="닫기">
+        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw22');" title="닫기">
           <span class="i-01">사용자 정보</span></a>
         </div>
         <div class="form-mw-box display- row">
@@ -307,39 +487,39 @@ class B04DetailPage {
             <ul>
               <li>
                 <label for="cGubunType1" class="input-label"><span>성명(회사명)</span></label>
-                <select id="cGubunType1" name="cGubunType1" onchange="detailB04.handleUserGubun(event)" 
+                <select id="cGubunType1" name="cGubunType1" onchange="cyberMinwon.state.currentModule.state.currentPage.handleUserGubun(event)" 
                   title="변경구분 선택" class="input-box input-w-2">
-                  <option value="0" ${detailB04.state.userInfo.gubun === '0' ? 'selected' : ''}>개인</option>
-                  <option value="1" ${detailB04.state.userInfo.gubun === '1' ? 'selected' : ''}>법인</option>
+                  <option value="0" ${that.state.userInfo.gubun === '0' ? 'selected' : ''}>개인</option>
+                  <option value="1" ${that.state.userInfo.gubun === '1' ? 'selected' : ''}>법인</option>
                 </select>
                 <label for="form-mw12-tx"><span class="sr-only">성명(회사명)</span></label>
-                <input onkeyup="detailB04.handleUserName(event)" onchange="detailB04.handleUserName(event)"
-                  type="text" value="${detailB04.state.userInfo.userName}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleUserName(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleUserName(event)"
+                  type="text" value="${that.state.userInfo.userName}"
                   id="form-mw12-tx" class="input-box input-w-2" placeholder="사용자 성명(회사명)">
               </li>
-              <li ${detailB04.state.userInfo.gubun === '0' ? 'hidden' : ''}>
+              <li ${that.state.userInfo.gubun === '0' ? 'hidden' : ''}>
                 <label for="form-mw35-tx" class="input-label"><span>사업자번호</span></label>
-                <input onkeyup="detailB04.handleUserBusinessNumber(event)" onchange="detailB04.handleUserBusinessNumber(event)"
-                  value="${detailB04.state.userInfo.userBusinessNumber}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleUserBusinessNumber(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleUserBusinessNumber(event)"
+                  value="${that.state.userInfo.userBusinessNumber}"
                   type="text" id="form-mw35-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
               </li>
               <li>
                 <label for="form-mw45-tx" class="input-label"><span>전화번호</span></label>
-                <input onkeyup="detailB04.handleUserPhone(event)" onchange="detailB04.handleUserPhone(event)"
-                  value="${detailB04.state.userInfo.userPhone}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleUserPhone(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleUserPhone(event)"
+                  value="${that.state.userInfo.userPhone}"
                   type="text" id="form-mw45-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
               </li>
               <li>
                 <label for="form-mw36-tx" class="input-label"><span class="form-req">휴대폰번호</span></label>
-                <input  onkeyup="detailB04.handleUserMobile(event)" onchange="detailB04.handleUserMobile(event)"
-                  value="${detailB04.state.userInfo.userMobile}"
+                <input  onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleUserMobile(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleUserMobile(event)"
+                  value="${that.state.userInfo.userMobile}"
                   type="text" id="form-mw36-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
                 <p class="form-cmt">* 휴대번호가없는 경우 전화번호를 입력하세요.</p>
               </li>
               <li>
                 <label for="leakRepairDt" class="input-label"><span>변경년월일 </span></label>
-                <input type="date" onchange="detailB04.handleDateForUser(event)" onkeyup="detailB04.handleDateForUser(event)"
-                  value="${detailB04.state.userInfo.userChangeDate}" id="leakRepairDt" name="leakRepairDt"
+                <input type="date" onchange="cyberMinwon.state.currentModule.state.currentPage.handleDateForUser(event)" onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleDateForUser(event)"
+                  value="${that.state.userInfo.userChangeDate}" id="leakRepairDt" name="leakRepairDt"
                   class="input-box input-w-2 datepicker hasDatepicker">
                 <p class="form-cmt txRed">* 실제 사용자 변경일자를 입력하세요.</p>
               </li>
@@ -352,7 +532,7 @@ class B04DetailPage {
       <!-- 소유자정보 -->
       <div id="mw-box2" class="mw-box display-none row">
       <div id="form-mw23" class="row">
-        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="showHideLayer('#form-mw23');" title="닫기">
+        <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw23');" title="닫기">
           <span class="i-01">소유자 정보</span></a>
         </div>
         <div class="form-mw-box display-block row">
@@ -360,38 +540,38 @@ class B04DetailPage {
             <ul>
               <li>
                 <label for="cGubunType2" class="input-label"><span>성명(회사명)</span></label>
-                <select id="cGubunType2" name="cGubunType2" onchange="detailB04.handleOwnerGubun(event)"
+                <select id="cGubunType2" name="cGubunType2" onchange="cyberMinwon.state.currentModule.state.currentPage.handleOwnerGubun(event)"
                   title="변경구분 선택" class="input-box input-w-2">
-                  <option value="0" ${detailB04.state.ownerInfo.gubun === '0' ? 'selected' : ''}>개인</option>
-                  <option value="1" ${detailB04.state.ownerInfo.gubun === '1' ? 'selected' : ''}>법인</option>
+                  <option value="0" ${that.state.ownerInfo.gubun === '0' ? 'selected' : ''}>개인</option>
+                  <option value="1" ${that.state.ownerInfo.gubun === '1' ? 'selected' : ''}>법인</option>
                 </select>
                 <label for="form-mw32-tx"><span class="sr-only">성명(회사명)</span></label>
-                <input onkeyup="detailB04.handleOwnerName(event)" onchange="detailB04.handleOwnerName(event)"
-                  type="text" value="${detailB04.state.ownerInfo.ownerName}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleOwnerName(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleOwnerName(event)"
+                  type="text" value="${that.state.ownerInfo.ownerName}"
                   id="form-mw32-tx" class="input-box input-w-2" placeholder="사용자 성명(회사명)">
               </li>
-              <li ${detailB04.state.ownerInfo.gubun === '0' ? 'hidden' : ''}>
+              <li ${that.state.ownerInfo.gubun === '0' ? 'hidden' : ''}>
                 <label for="form-mw55-tx" class="input-label"><span>사업자번호</span></label>
-                <input onkeyup="detailB04.handleOwnerBusinessNumber(event)" onchange="detailB04.handleOwnerBusinessNumber(event)"
-                  value="${detailB04.state.ownerInfo.ownerBusinessNumber}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleOwnerBusinessNumber(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleOwnerBusinessNumber(event)"
+                  value="${that.state.ownerInfo.ownerBusinessNumber}"
                   type="text" id="form-mw55-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
               </li>
               <li>
                 <label for="form-mw65-tx" class="input-label"><span>전화번호</span></label>
-                <input onkeyup="detailB04.handleOwnerPhone(event)" onchange="detailB04.handleOwnerPhone(event)"
-                  value="${detailB04.state.ownerInfo.ownerPhone}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleOwnerPhone(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleOwnerPhone(event)"
+                  value="${that.state.ownerInfo.ownerPhone}"
                 type="text" id="form-mw65-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
               </li>
               <li>
                 <label for="form-mw46-tx" class="input-label"><span class="form-req">휴대폰번호</span></label>
-                <input onkeyup="detailB04.handleOwnerMobile(event)" onchange="detailB04.handleOwnerMobile(event)"
-                  value="${detailB04.state.ownerInfo.ownerMobile}"
+                <input onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleOwnerMobile(event)" onchange="cyberMinwon.state.currentModule.state.currentPage.handleOwnerMobile(event)"
+                  value="${that.state.ownerInfo.ownerMobile}"
                 type="text" id="form-mw46-tx" class="input-box input-w-2" placeholder="'-' 없이 번호입력">
                 <p class="form-cmt">* 휴대번호가없는 경우 전화번호를 입력하세요.</p>
               </li>
               <li><label for="leakRepairDt1" class="input-label"><span>변경년월일 </span></label>
-                <input type="date" onchange="detailB04.handleDateForOwner(event)" onkeyup="detailB04.handleDateForOwner(event)"
-                  value="${detailB04.state.ownerInfo.ownerChangeDate}" id="leakRepairDt1" name="leakRepairDt1"
+                <input type="date" onchange="cyberMinwon.state.currentModule.state.currentPage.handleDateForOwner(event)" onkeyup="cyberMinwon.state.currentModule.state.currentPage.handleDateForOwner(event)"
+                  value="${that.state.ownerInfo.ownerChangeDate}" id="leakRepairDt1" name="leakRepairDt1"
                   class="input-box input-w-2 datepicker hasDatepicker">
                 <p class="form-cmt txRed">* 실제 소유자 변경일자를 입력하세요.</p>
               </li>
@@ -402,14 +582,53 @@ class B04DetailPage {
       </div><!-- // mw-box -->
     `;
 
-    this.state.root.innerHTML = template;
+    document.getElementById('minwonRoot').innerHTML = template;
 
+    this.renderDescription(document.getElementById('desc'));
+
+    this.afterRender();
+  }
+
+  afterRender() {
     // 상태가 아닌 UI class 적용은 랜더링 후에 처리되어야 한다.
     this.state.userCheck ? showGubunMulti('#aGubun1', '#mw-box1') : hideGubunMulti('#aGubun1', '#mw-box1');
     this.state.userCheck ? showLayer('#form-mw22') : hideLayer('#form-mw22');
     this.state.ownerCheck ? showGubunMulti('#aGubun2', '#mw-box2') : hideGubunMulti('#aGubun2', '#mw-box2');
     this.state.ownerCheck ? showLayer('#form-mw23') : hideLayer('#form-mw23');
+  }
 
-    this.setEventListeners();
+  renderDescription(target) {
+    const that = this;
+    const desc = `
+        <div id="form-mw0" class="row">
+          <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw0');" class="on" title="닫기">
+            <span class="i-06 txStrongColor">민원안내 및 처리절차</span></a>
+          </div>
+          <div class="form-mw-box display-none row">
+            <div class="info-mw row">
+              <div class="tit-mw-h5 row"><span>${that.state.description.minwonNm}</span></div>
+              <div class="info-mw-list">
+                <ul>
+                  <li>${that.state.description.minwonDfn}<br>
+                </ul>
+              </div>
+    
+              <div class="tit-mw-h5 row"><span>신청방법</span></div>
+              - ${that.state.description.minwonHow}<br>
+              <div class="tit-mw-h5 row"><span>처리기간</span></div>
+              - ${that.state.description.minwonReqstDc}<br>
+              <div class="tit-mw-h5 row"><span>처리부서</span></div>
+              - ${that.state.description.minwonGde}<br>
+              <div class="tit-mw-h5 row"><span>신청서류</span></div>
+              - ${that.state.description.presentnPapers}<br>
+              <div class="tit-mw-h5 row"><span>관련법규</span></div>
+              - ${that.state.description.mtinspGde}<br>
+              <div class="tit-mw-h5 row"><span>처리절차</span></div>
+              - ${that.state.description.minwonProcedure}<br>
+            </div>
+          </div>
+        </div><!-- // info-mw -->
+      `;
+    target.innerHTML = desc;
   }
 }

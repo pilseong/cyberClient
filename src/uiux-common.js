@@ -1,4 +1,6 @@
 
+//Layer는 DIV를 display none으로 설정
+//MW는 해당 버튼의 활성화 비활성화 설정
 //레이어 표시/숨기기
  function showHideLayer(layer) {
 	 if ($(layer+">.form-mw-box").hasClass( "display-block" ))	 {
@@ -6,6 +8,14 @@
 	 } else {
 	   showLayer(layer);
 	 }
+ }
+ 
+ function toggleLayer(layer) {
+   if ($(layer+">.form-mw-box").hasClass( "display-block" ))   {
+     hideLayer(layer);
+   } else {
+     showLayer(layer);
+   }
  }
  
  function showLayer(layer) {
@@ -58,8 +68,8 @@
    }
  }
  
- //이사 통합민원
  function addMW(opt) {
+   console.log("addMW", opt);
 //		$(gubun).removeClass("on");
 //		$(gubun).addClass("off");
 //		$(gubun).attr( 'title', '' );
@@ -78,7 +88,7 @@
 }
 
  //약관/설명 표시/숨기기
- function showHideInfo(layer) {
+function showHideInfo(layer) {
 	 if ($(layer).hasClass( "display-block" ))	 {
 		$(layer).addClass("display-none");
 		$(layer).removeClass("display-block");
@@ -89,5 +99,27 @@
 		$(layer).removeClass("display-none");
 		$(layer).closest("a").attr( 'title', '보기' );
 	 }
+}
 
- }
+// 핸드폰 번호에 대한 화면 검증
+function phoneNumberInputValidation(target, length, pattern) {
+  if (!pattern.test(target.value.substring(0, length))) {
+    target.classList.remove('success')
+    target.classList.add('err')
+  } else {
+    target.classList.remove('err')
+    target.classList.add('success')
+  }
+}
+
+function hideElement(ele) {
+  $(ele).addClass("display-none");
+  $(ele).removeClass("display-block");
+  $(ele).closest(".btnTypeC").attr( 'title', '닫기' );
+}
+
+function showElement(ele) {   
+  $(ele).addClass("display-block");
+  $(ele).removeClass("display-none");
+  $(ele).closest("a").attr( 'title', '보기' );
+}

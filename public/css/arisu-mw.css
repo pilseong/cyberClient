@@ -96,7 +96,9 @@
 .form-mv .input-label-1 { display:block;  font-size: 18px; font-weight: 700; vertical-align:top; }
 .form-mv .txStrong { font-size:18px; }
 .input-box { border-bottom:1px solid #cbd2d8 !important; }
-.textarea-box { width:calc(100% - 20px);  height:100px; padding:10px; background:#fff; border:1px solid #cbd2d8 !important; border-radius:5px; }
+.input-box.err { border-bottom:1px solid red !important; }
+.input-box.success { border-bottom:1px solid green !important; }
+.textarea-box { width:calc(100% - 20px);  height:40px; padding:10px; margin: 10px 0 0 0; background:#fff; border:1px solid #cbd2d8 !important; border-radius:5px; }
 
 .input-w-0 { width:100%; }
 .input-w-1 { width:calc(100% - 220px); }
@@ -114,7 +116,7 @@
 .form-cmt a:hover { text-decoration: underline; }
 .form-info-box {  padding:15px !important; margin-top:10px; background:#f8ffff; border:1px solid #a9d5de; border-radius:.28571429rem; word-break:break-all;word-wrap:break-word; }
 
-.mw-info-label {display:inline-block; width:85px; color:#aaa; }
+.mw-info-label {display:inline-block; width:150px; color:#aaa; }
 .mw-info-label::before { content: "-  "; }
 .form-btn-wrap { margin:20px; text-align:center; }
 .info-btn-wrap { margin:15px 0 0; text-align:center; }
@@ -198,11 +200,21 @@
 }
 
 
+/* 경고창 */
+.msg-box {  display:block; width:calc(100% - 22px); max-width:600px; min-width:250px; padding:15px 15px; margin-top:10px;  background: url('./images/icoMinus.png') top left no-repeat; background-color:#f8ffff;   border:1px solid #a9d5de; border-radius:.28571429rem; word-break:break-all;word-wrap:break-word; font-size:14px; }
+.btn-msg-wrap { display:block; text-align:right; }
+.tx-msg-wrap { margin-top:-25px; }
 
 
+.msg-mint {  background:#f8ffff; border:1px solid #10a3a3; color:#10a3a3; }
+.msg-blue {  background:#dff0ff; border:1px solid #2185d0; color:#2185d0; }
+.msg-yellow {  background:#fff8db; border:1px solid #b58105; color:#b58105; }
+.msg-red {  background:#ffe8e6; border:1px solid #db2828; color:#db2828}
+.msg-green {  background:#e5f9e7; border:1px solid #1ebc30; color:#1ebc30; }
 
-
-
-
-
-
+/* 주소검색 결과 */
+.sch-addr-re {margin:30px 0; border-top:1px solid #a9d5de;  background:#fff; }
+.sch-addr-re table { width:100%; text-align:center;  }
+.sch-addr-re table th { padding:5px 0; background:#e8ffff; border-bottom:1px solid #a9d5de; font-weight:bold; }
+.sch-addr-re table td { padding:3px 0; font-size:12px; border-bottom:1px solid #e4e8eb; }
+.sch-addr-re .col-addr-no { width:70px; }
