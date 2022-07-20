@@ -1,9 +1,9 @@
-//const urlParameter = window.location.search;
-//const index = urlParameter.indexOf('minwonCd');
-//const minwonCd = urlParameter.substring(index + 1 + 'minwonCd'.length);
+import CyberMinwon from './CyberMinwon';
+import { toggleLayer, showHideLayer } from './util/uiux-common';
+
 const root = document.getElementById('app');
 
 // const currentUrl = window.location.pathname.split('/citizen/common/')[1].split('.do')[0];
-const cyberMinwon = new CyberMinwon(null, root);
-
-cyberMinwon.render();
+window.cyberMinwon = new CyberMinwon('', root);
+window.toggleLayer = toggleLayer;
+window.showHideLayer = showHideLayer;

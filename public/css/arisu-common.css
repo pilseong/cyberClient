@@ -32,8 +32,8 @@ a {transition: all ease 0.3s; }
 /* 공통 */
 .left { float:left; }
 .right { float:right; }
-.display-block { display:block !important; }
-.display-none { display:none !important; }
+.display-block { display:block !important; transition: all ease 5s;}
+.display-none { display:none !important; transition: all ease 5s;}
 
 
 /* 정렬 */
@@ -51,11 +51,11 @@ a {transition: all ease 0.3s; }
 
 /* 글자색 */
 .txStrongColor { color:#1c5cbe !important; }
-.txStrong { font-weight:600; }
+.txStrong { font-weight:700; }
 .txRed { color:#ff0000 !important; }
 .txBlue { color:#2879ff !important; }
 .txGreen { color:#54ac4b; }
-.txOrange { color:#ffcf42; }
+.txOrange { color:#ff6600; }
 .txBlack { color:#262626; }
 .txWhite { color:#fff !important; }
 .txGray { color:#999; }
@@ -74,7 +74,7 @@ a {transition: all ease 0.3s; }
 .bgStrong { background-color:#1c5cac !important; box-shadow: 0 0px 5px rgb(0 0 0 / 20%); }
 
 /* 버튼 -------------------------------------------- */
-.btn { transition: all ease 0.3s; }
+.btn { transition: all ease 0.3s; margin:2px 0; cursor: pointer;}
 .btnM { display:inline-block; height:40px; line-height:35px; margin-left:5px; padding:0 10px; border:1px solid #1c5cac;  border-radius:.28571429rem; font-size:14px; font-weight:700; color:#fff; background:#1c5cac; }
 .btnS { display:inline-block; height:30px; line-height:27px; margin-left:5px; padding:0 20px; border:1px solid #1c5cac;  border-radius:.28571429rem; font-size:13px; font-weight:700; color:#fff; background:#1c5cac; }
 .btnSS { display:inline-block; height:24px; line-height:24px; margin-left:5px; padding:0 15px; border:1px solid #dee7eb; border-radius:.28571429rem; font-size:12px; font-weight:400; background:#f4f8fb; }
@@ -87,6 +87,7 @@ a {transition: all ease 0.3s; }
 .btnTypeA { color: #fff !important; border: 1px solid #555 !important; background: #555 !important; }
 .btnTypeB { color: #fff !important; border: 1px solid #999 !important; background: #999 !important; }
 .btnTypeC { color: #1c5cac !important; border: 1px solid #1c5cac !important; background: #fff !important; }
+.btnTypeD { color: #333 !important; border: 1px solid #dfdfdf !important; background: #fff !important; }
 
 
 .btnM:hover, .btnS:hover, .btnSS:hover { border:1px solid #206bc8 !important; color:#fff !important; background:#206bc8 !important;  }
@@ -108,7 +109,8 @@ a {transition: all ease 0.3s; }
 .i-10 { display:inline-block;  width:auto; padding: 0 10px 0 30px; background:url('./images/i-10.png')no-repeat 0 55% !important; }
 .i-99 { display:inline-block;  width:auto; padding: 0 10px 0 30px; background:url('./images/i-81.png')no-repeat 0 55% !important; }
 
-
+.i-50 { display:inline-block;  width:auto; padding: 0 10px 0 30px; background:url('./images/i-50.png')no-repeat 0 55% !important; }
+.i-51 { display:inline-block;  width:auto; padding: 0 10px 0 30px; background:url('./images/i-51.png')no-repeat 0 55% !important; }
 
 /* 옵션 선택 */
 
@@ -130,13 +132,10 @@ a {transition: all ease 0.3s; }
 .mw-opt-2 li {  width: 50%;  }
 .mw-opt-1 li {  width: 100%;  }
 
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0
-}
-
 @media (max-width:800px) {
 	.mw-opt-2 li {  width: 100%;  }
+	.mw-opt li a span {  padding:0 10px 0 3px; }
+
 /*
 	.mw-opt-4 li {  width: 50%;  }
 	.mw-opt-5 li {  width: 50%;  }
@@ -144,3 +143,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 	.mw-opt-3 li {  width: 100%;  }
 	*/
 }
+
+
