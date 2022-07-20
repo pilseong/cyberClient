@@ -251,8 +251,8 @@ class A11DetailPage {
     const requestData = {
       //
       'DrcconWspVO.waterTy': requestInfo.waterTy,
-      'DrcconWspVO.constructDt': requestInfo.constructDt.replaceAll("-", "")
-    		'DrcconWspVO.area': requestInfo.area,
+      'DrcconWspVO.constructDt': requestInfo.constructDt.replaceAll("-", ""),
+      'DrcconWspVO.area': requestInfo.area,
       'DrcconWspVO.pipeDia': requestInfo.pipeDia,
       'DrcconWspVO.buildingYear': requestInfo.buildingYear,
       'DrcconWspVO.building': requestInfo.building,
