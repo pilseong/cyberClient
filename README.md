@@ -32,7 +32,9 @@
 * 현재 개발진행 중인 프로젝트의 기반 소스 코드일 뿐 실제 운영소스와는 다르다.
 * 클라이언트 프레임워크가 없는 환경에서 어떻게 Single Page Application을 쉽게 구현할 수 있는지  
 예시를 보이기 위해 Repository를 남겨 두었다.
-* 현재 오픈되지 않았지만 실개발링크를 남겨둔다. [링그](https://i121.seoul.go.kr:38090/citizen/common/nCitizenCivilList.do?userKey=)
+# 오픈 상황
+* ~~현재 오픈되지 않았지만 실개발링크를 남겨둔다.~~ [링크](https://i121.seoul.go.kr:38090/citizen/common/nCitizenCivilList.do?userKey=)
+* 2023.12월 현재 실서비스가 오픈되어 있다. [링크](https://i121.seoul.go.kr/cs/cyber/front/cvplsvc/NR_index.do?_m=m2_1)
 * 데모 Video [링크](https://www.youtube.com/watch?v=iRlp-FCfQKs)
 
 
@@ -52,3 +54,6 @@
   * 이런 부분은 구조 설계가 된 상태에서 추가하는 것이 어렵지 않기 않다.
 * Single Page Application 구조를 TypeScript로 작성할 예시를 보여주는 것이 목적이므로 미완성의 코드라도 소기의 목적은 달성한 것 같다.
 * 처음에 js로 만들었다가 개발자들이 디버깅 문제를 호소하여 TypeScript로 변환한 과정에 있던 소스이기 때문에 js와 ts가 혼재되어 있다. 그리고 이 시점에서는 ts도 깊은 타입을 사용하지 않고 있어 그냥 js로 봐도 무방하다.
+
+
+![image](https://github.com/pilseong/cyberClient/assets/19240446/b512224a-7f2e-4e0e-ad98-71fb381d1f80)
