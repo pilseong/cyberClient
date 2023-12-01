@@ -1,4 +1,4 @@
-# 설명
+# 설명 - Single Page Application only with pure TypeScript, Webpack
 ## 배경
 * Product Manager으로 해당 UX, UI부분에 대한 개선요구가 많음을 인지하고 있었고, 보안적인 부분에서도 개선이 필요했다.
 * 해당 서비스는 30종 이상의 민원을 신청하기 위한 민원 클라이언트이다. 
