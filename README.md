@@ -1,4 +1,4 @@
-# 관공소 민원 클라이언트
+# 관공서 민원 클라이언트
 ## 설명
 * 3-4 페이지의 이동이 가능하고 다양한 민원을 같이 신청할 수 있는 JavaScript 클라이언트
 * Single Page Application only with pure TypeScript, Webpack
