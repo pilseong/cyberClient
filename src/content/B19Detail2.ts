@@ -1904,7 +1904,7 @@ export default class B19DetailPage {
 
     const desc = `
         <div id="form-mw0" class="row">
-          <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw0');" class="on" title="펼치기">
+          <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw0');" class="on" title="닫기">
             <span class="i-06 txStrongColor">민원안내 및 처리절차</span></a>
           </div>
           <div id="innerDesc" class="form-mw-box display-none row">

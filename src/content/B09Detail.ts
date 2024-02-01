@@ -1,45 +1,46 @@
 import CyberMinwon from '../infra/CyberMinwon';
 import { fetch } from './../util/unity_resource';
-import { citizenAlert, citizen_alert, citizenConfirm, maskingFnc, getNowDate } from './../util/uiux-common';
+import { citizenAlert, citizen_alert, citizenConfirm, maskingFnc } from './../util/uiux-common';
 
 declare var gContextUrl: string;
-declare var alert_msg: (msg: string) => void;
 declare var $: any;
 declare var fncCutByByte: (str: string, maxByte: number) => string;
 declare var cyberMinwon: CyberMinwon;
 
-export default class A12DetailPage {
+export default class B09DetailPage {
+  path: string;
   state: {
       minwonCd: string;
       parent: any;
-      path: string,
       isSubmitSuccessful: boolean;
       submitResult: any,
       statusInfo: any;
       requestInfo: {
-        buildingYear: string;  // 준공년도
-        contents: string; // 민원내용
+        pipeDia: string; // 구경(수용가조회 값,분기(divConst에 사용)
+        bizNm: string;   // 업종(수용가조회 값)
+        applyRsn: string;  // 신청사유
+        etc: string; // 기타(비고)
       },
       viewRequestInfo: any;
       description: any;
   };
-
-  constructor(parent: any, minwonCd: string) {
+  constructor(parent:any, minwonCd:any) {
     this.state = {
       minwonCd,
       parent,
-      path: 'cyberMinwon.state.currentModule.state.currentPage',
       isSubmitSuccessful: false,
       submitResult: {},
       statusInfo: {},
       requestInfo: {
-      	buildingYear: '',  // 준공년도
-      	contents: ''  // 내용
+  	  	pipeDia: "",//구경(수용가조회 값,분기(divConst에 사용)
+  	  	bizNm: "",//업종(수용가조회 값)
+  	  	applyRsn: "",//신청사유
+  	  	etc: ""//기타(비고)
       },
       viewRequestInfo: {},
       description: {}
-    }
-
+    };
+    this.path = 'cyberMinwon.state.currentModule.state.currentPage';
     this.setInitValue();
   }
 
@@ -47,36 +48,15 @@ export default class A12DetailPage {
   setInitValue() {
     const that = this;
     that.setState({
-      ...that.state,
-      requestInfo: {
-        buildingYear: '',  // 준공년도
-        contents: ''  // 내용
+  		...that.state,
+  		requestInfo: {
+  			pipeDia: "",//구경(수용가조회 값,분기(divConst에 사용)
+    	  bizNm: "",//업종(수용가조회 값)
+  			applyRsn: "",//신청사유
+  			etc: ""//기타(비고)
       }
-    });
-  }
-  
-  //수용가 조회 시 민원 신청 가능한지 확인하는 함수
-  async possibleApplyChk(mgrNo:string){
-    
-    let formData = new FormData();
-    formData.set("mkey",mgrNo);
-    
-    try{
-    let res = await window.fetch("/citizen/common/wspCnsltHistory.do",{
-      method: 'post',
-      body: formData
-    })
-    let data =  await res.json();
-      if(data.length !== 0){
-        citizenAlert("옥내급수관 공사비 지급이력이 있는 수용가(주소지)입니다.<br>관할 수도사업소로 문의하여 주시기 바랍니다.");
-        return false;
-      }else{
-        return true;
-      }
-    }catch(err: any){
-      citizenAlert("네트워크 또는 서버 오류입니다. 잠시 후 다시 시도해 주세요.");
-      return false;
-    }
+  	});
+  	
   }
 
   // 민원안내, 절차 정보를 서버에 요청한다. 
@@ -91,13 +71,15 @@ export default class A12DetailPage {
   // InfoPanel 데이터 설정
   getViewInfo() {
   	const that = this;
-  	
+
     return {
-      noinfo: {
-//        title: that.state.description.minwonNm,
-        buildingYear: [that.state.requestInfo.buildingYear, '준공년도'],
-        contents: [that.state.requestInfo.contents, '상담 신청내용']
-      }
+    	noinfo: {
+//    		title: this.state.description.minwonNm,
+    		pipeDia : [that.state.requestInfo.pipeDia+"mm", "구경"],
+    		bizNm : [that.state.requestInfo.bizNm, "업종"],
+    		applyRsn : [that.state.requestInfo.applyRsn, "신청사유"],
+    		etc : [that.state.requestInfo.etc, "기타내용"]
+    	}
     };
   }
   
@@ -131,7 +113,7 @@ export default class A12DetailPage {
     return infoData;
   }
 
-  setState(nextState: any) {
+  setState(nextState:any) {
     this.state = nextState;
   }
 
@@ -140,56 +122,54 @@ export default class A12DetailPage {
 
   // 입력사항 검증 로직
   verify() {
-  	const that = this;
     const requestInfo = this.state.requestInfo;
-
-    if (!requestInfo.buildingYear) {
-      citizenAlert("준공년도를 입력해 주세요.").then(result => {
+    if(!requestInfo.applyRsn){
+      citizenAlert("신청사유를 입력해 주세요.").then(result => {
         if(result){
-          $("#buildingYear").focus();
+          $("#applyRsn").focus();
         }
       });
-      return false;
+    	return false;
     }
     return true;
   }
-
-  handleChangeBuildingYear(e: any) {
-    let value = e.target.value.replace(/[^0-9]/g,"").substring(0,4);
-    
-    let dateMap =getNowDate();
-    (value > '2100' || value == "0000") ? value= dateMap.get("year") : value;
-    
-  	this.setState({
-			...this.state,
-			requestInfo: {
-				...this.state.requestInfo,
-				buildingYear: value
-			}
-  	});
-  	e.target.value = this.state.requestInfo.buildingYear;
+  //신청사유
+  handleApplyRsn(e:any) {
+	  this.setState({
+	      ...this.state,
+	      requestInfo: {
+	        ...this.state.requestInfo,
+	        applyRsn: fncCutByByte(e.target.value, 1900)
+	      }
+	    });
+	    e.target.value = this.state.requestInfo.applyRsn
+	  }
+  
+  //기타(비고)
+  handleEtc(e:any) {
+	  this.setState({
+	      ...this.state,
+	      requestInfo: {
+	        ...this.state.requestInfo,
+	        etc: fncCutByByte(e.target.value, 480)
+	      }
+	    });
+	  e.target.value = this.state.requestInfo.etc
   }
   
-  //
-  handleChangeContents(e: any) {
-  	this.setState({
-			...this.state,
-			requestInfo: {
-				...this.state.requestInfo,
-				contents: fncCutByByte(e.target.value, 1500)
-			}
-  	});
-  	e.target.value = fncCutByByte(this.state.requestInfo.contents, 1500);
+  //신청 구분에 따른 UI 활성화
+  toggleUIGubun(gubun:String, id:String, uiBox:String, gubunNm:String) {
   }
   
   // 서비스를 서버로 요청한다.
   submitApplication() {
     const that = this;
 
-    var url = gContextUrl + "/citizen/common/procApplyWspCnslt.do";
-    var queryString = this.getQueryString();
+    var url = gContextUrl + "/citizen/common/procApplyMtrAthrz.do";
+    const sendData = this.getQueryString();
+    
 
-    fetch('POST', url, queryString, function (error: any, data: any) {
+    fetch('POST', url, sendData, function (error:any, data:any) {
       // 에러가 발생한 경우
       if (error) {
         citizenAlert(that.state.description.minwonNm+"이 정상적으로 처리되지 않았습니다.");
@@ -202,33 +182,26 @@ export default class A12DetailPage {
       });
 
       cyberMinwon.setResult(that.state.description.minwonNm, that, 'getResultView');
-
-//      that.render();
     });
   }
 
   getQueryString() {
-    const requestInfo = this.state.requestInfo;
-    const statusInfo = this.state.statusInfo;
-    const suyongaInfo = this.state.parent.state.applicationPage.suyongaInfo.state.suyongaInfo;
-
-    const requestData = {
-      // 통합 민원 데이터 셋 바인딩
-    		'buildingYear': requestInfo.buildingYear,
-        'contents': requestInfo.contents,
-        'owner': suyongaInfo.ownerNm,
-        'useNm': suyongaInfo.usrName
-    };
-
+  	const requestInfo = this.state.requestInfo;
+    const EditMtrAthrzObjcData = {
+    		pipeDia: requestInfo.pipeDia,//구경
+    		bizNm: requestInfo.bizNm,//업종
+    		applyRsn: requestInfo.applyRsn,//신청사유
+    		etc: requestInfo.etc//기타(비고)
+    }
+    
     return {
       ...this.state.parent.state.applicationPage.getSuyongaQueryString(),
       'cvplInfo.cvpl.minwonCd': this.state.minwonCd,
-      ...requestData
+      ...EditMtrAthrzObjcData
     };
   }
   
   getStatusString() {
-    const statusInfo = this.state.statusInfo;
     
   }
 
@@ -236,7 +209,6 @@ export default class A12DetailPage {
   render() {
   	const that = this;
 
-  	
     let template = `
       <!-- 민원안내 -->
       <div class="mw-box" id="desc">
@@ -248,32 +220,29 @@ export default class A12DetailPage {
       </div><!-- // mw-box -->     
       <!-- 신청내용 -->
       <div class="mw-box">
-      <!-- 옥내급수관 진단 상담 신청 -->
+      <!-- 수도계량기 검정시험 신청 -->
       <div id="form-mw23" class="row">
         <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw23');" class="off" title="닫기">
         <span class="i-01">${that.state.description.minwonNm}</span></a></div>
         <div class="form-mw-box display-block row">
           <div class="form-mv row">
             <ul>
-            	<li>
-		          	<label for="buildingYear" class="input-label"><span class="form-req"><span class="sr-only">필수</span>준공년도</span></label>
-		          	<input type="text" id="buildingYear" name="buildingYear" class="input-box input-w-2" title="건물 준공년도" maxlength="4" placeholder="건물 준공년도 입력"
-		          		value="${that.state.requestInfo.buildingYear}"
-		          		onkeyup="${that.state.path}.handleChangeBuildingYear(event)" 
-			            onchange="${that.state.path}.handleChangeBuildingYear(event)">
-		          </li>  
-		          <li>
-		            <label class="input-label-1"><span>상담 신청내용을 입력해 주세요.</span></label>
-		            <textarea name="contents" id="contents" class="textarea-box" title="상담 신청내용" maxlength="1500"
-		            	onkeyup="${that.state.path}.handleChangeContents(event)"
-	                onchange="${that.state.path}.handleChangeContents(event)">${that.state.requestInfo.contents}</textarea>
-		          </li>
+	            <li>
+	            	<label for="applyRsn" class="input-label-1"><span class="form-req"><span class="sr-only">필수</span>신청사유를 입력해 주세요.</span></label> 
+		            <textarea onkeyup="${that.path}.handleApplyRsn(event)" onchange="${that.path}.handleApplyRsn(event)"
+		            	id="applyRsn" name="applyRsn" class="textarea-box"  title="신청사유" maxlength="190">${that.state.requestInfo.applyRsn}</textarea>
+	            </li>
+	            <li>
+		            <label for="etc" class="input-label-1"><span>기타 내용을 입력해 주세요.</span></label> 
+		            <textarea onkeyup="${that.path}.handleEtc(event)" onchange="${that.path}.handleEtc(event)"
+		            	id="etc" name="etc" class="textarea-box"  title="기타(비고)" maxlength="160">${that.state.requestInfo.etc}</textarea>
+            	</li>
             </ul>
           </div>
         </div><!-- //form-mw-box -->
       </div><!-- //form-mw23 -->
       </div><!-- //mw-box -->    
-    `;
+      `;
 
     document.getElementById('minwonRoot')!.innerHTML = template;
 
@@ -282,12 +251,23 @@ export default class A12DetailPage {
     this.afterRender();
   }
   
-  // 기본 설정값은 여기에서 랜더링 해야 한다.
+  //상태가 아닌 UI class 적용은 랜더링 후에 처리되어야 한다.
   afterRender() {
+  	const that = this;
+  	//state.requestInfo;
+  	this.setState({
+        ...this.state,
+        requestInfo: {
+          ...this.state.requestInfo,
+          pipeDia: that.state.parent.state.parent.state.currentModule.state.applicationPage.suyongaInfo.state.suyongaInfo.cbCdNm,//(현)업종코드
+          bizNm: that.state.parent.state.parent.state.currentModule.state.applicationPage.suyongaInfo.state.suyongaInfo.idtCdSNm//(현)업종코드명
+        }
+      });
   }
   
-
-  renderDescription(target: any) {
+  
+	
+  renderDescription(target:any) {
   	const that = this;
   	
     let desc = `

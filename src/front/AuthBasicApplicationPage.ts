@@ -1,33 +1,55 @@
 /**
  *  기본 신청 폼 - 수용가 정보와 신청인 정보를 관리하는 컴포넌트 
  */
-import SpotInfo from "../components/SpotInfo";
-import ApplicantInfo from "../components/ApplicantInfo";
-import { citizenAlert, citizenAlert2, citizenConfirm, phonePattern, mobilePattern, clearObject } from './../util/uiux-common';
+import SuyongaInfo from '../components/SuyongaInfo';
+import ApplicantInfo from '../components/ApplicantInfo';
+import AthenticationInfo from '../components/AuthenticationInfo';
+import AthenticationInfo3 from '../components/AuthenticationInfo3';
+import { toggleMW, citizenAlert, citizenAlert2, citizenAlert3, serverTime, phonePattern, mobilePattern, clearObject } from './../util/uiux-common';
 import { getPrivacyAgree } from './PrivacyAgree';
+import UnityMinwonPanel from '../components/UnityMinwonPanel';
+import CyberMinwonStorage from '../infra/StorageData';
 declare var $: any;
-export default class NoSuyongaApplicationPage {  
+export default class AuthBasicApplicationPage {
+  suyongaInfo: SuyongaInfo;
+  authenticationInfo: AthenticationInfo;
+  authenticationInfo3: AthenticationInfo3;
+  applicantInfo: ApplicantInfo;
   state: {
-//    parent: any;
     privacyAgree: boolean,
     smsAgree: boolean
   };
-  spotInfo: SpotInfo;
-  applicantInfo: ApplicantInfo;
+  unityMinwons : any
   path: string;
+  noticeCheck: boolean;
 
   constructor(private parent: any) {
-
     this.state = {
       // 부모 즉 프로그램 전체를 감싸는 UnityMinwon의 객체를 참조한다.
-//      parent,
       privacyAgree: false,
       smsAgree: false
     };
-    
-    this.spotInfo = new SpotInfo(this);
+    this.unityMinwons = UnityMinwonPanel;
+    this.suyongaInfo = new SuyongaInfo(this);
+    this.authenticationInfo = new AthenticationInfo(this, this.setAuthInfoToApplicantInfo);
+    this.authenticationInfo3 = new AthenticationInfo3(this, this.setAuthInfoToApplicantInfo);
     this.applicantInfo = new ApplicantInfo(this, false);
     this.path = "cyberMinwon.state.currentModule.state.currentPage";
+    this.noticeCheck = false
+  }
+  
+  // 인증 시 호출되는 콜백 함수
+  setAuthInfoToApplicantInfo = (authInfo: any) => {
+    this.applicantInfo.setState({
+      ...this.applicantInfo.state,
+      applyInfo: {
+        ...this.applicantInfo.state.applyInfo,
+        applyName: authInfo.name,
+        applyMobile: (authInfo.type === 'M' || authInfo.type === 'yessign' || authInfo.type === 'ezok') ? authInfo.mobile : '',
+        applyBirth: authInfo.birth ? authInfo.birth : ''
+      }
+    });
+    this.applicantInfo.render();
   }
   
   reset(){
@@ -36,27 +58,27 @@ export default class NoSuyongaApplicationPage {
       privacyAgree: false,
       smsAgree: false
     };
+    this.suyongaInfo = new SuyongaInfo(this);
+    this.authenticationInfo = new AthenticationInfo(this, this.setAuthInfoToApplicantInfo);
+    this.authenticationInfo3 = new AthenticationInfo3(this, this.setAuthInfoToApplicantInfo);
     this.applicantInfo = new ApplicantInfo(this, false);
+//    this.noticeCheck = false
   }
-  
+
   setState(nextState: any) {
     this.state = nextState;
   }
 
   getViewInfo() {
     return {
-      ...this.spotInfo.getSpotView(),
+      ...this.suyongaInfo.getSuyongaView(),
       ...this.applicantInfo.getApplyView(),
       privacyAgree: {
-        title: '개인정보동의',
-        privacyAgree: [this.state.privacyAgree ? '예' : '아니오', '개인정보 수집·이용 동의'],
-        smsAgree: [this.state.smsAgree ? '예' : '아니오', '민원 진행현황 수신 동의'],
+        title: '민원 신청 안내 및 동의',
+        privacyAgree: [this.state.privacyAgree ? '동의' : '미동의', '개인정보 수집·이용 동의'],
+        smsAgree: [this.state.smsAgree ? '동의' : '미동의', '민원 진행현황 수신 동의'],
       }
     };
-  }
-  
-  getAddData(){
-    return this.applicantInfo.state.addData;
   }
 
   // 개인정보 수집 동의
@@ -75,78 +97,118 @@ export default class NoSuyongaApplicationPage {
         if(result){
           $('#smsAgree').prop('checked',false);
           $('#applyMobile').focus();
+          return false;
         }
       });
       return;
-    }
-    this.setState({
+    }else{
+      this.setState({
       ...this.state,
       smsAgree: !this.state.smsAgree
     })
+    }
+    
   }
-  
+
+  // 신청인에 소유자 이름을 복사한다.
+  handleCopyOwnerName() {
+    const applicantState = this.applicantInfo.state;
+    const viewSourceInfo = this.suyongaInfo.state.viewSuyongaInfo;
+//    const viewDestInfo = this.applicantInfo.state.viewApplyInfo;
+
+    this.applicantInfo.setState({
+      ...applicantState,
+      applyInfo: {
+        ...applicantState.applyInfo,
+        applyName: viewSourceInfo.viewOwnerName[0]
+      },
+    });
+
+    this.applicantInfo.render();
+  }
+
+  // 신청인에 사용자 이름을 복사한다.
+  handleCopyUserName() {
+    const applicantState = this.applicantInfo.state;
+    const viewSourceInfo = this.suyongaInfo.state.viewSuyongaInfo;
+//    const viewDestInfo = this.applicantInfo.state.viewApplyInfo;
+
+    this.applicantInfo.setState({
+      ...applicantState,
+      applyInfo: {
+        ...applicantState.applyInfo,
+        applyName: viewSourceInfo.viewUserName[0]
+      },
+    });
+
+    this.applicantInfo.render();
+  }
+
   // 수용가의 주소를 복사해서 신청인 주소에 입력한다.
   // 신청인 주소와 함께 우편번호도 복사해야 한다.
   // 주의점은 View 주소에는 우편번호와 주소 모두 포함되어야 한다.
-  handleCopySpotAddress() {
-    if(!this.spotInfo.state.spotInfo.spotAddress){
-      citizenAlert('민원발생지 주소를 입력해 주세요.');
+  handleCopySuyongaAddress() {
+    if(!this.suyongaInfo.state.suyongaInfo.suyongaAddress){
+      citizenAlert('수용가 주소를 입력해 주세요.');
       return false;
     }
     const applicantState = this.applicantInfo.state;
     //const viewSourceInfo = this.suyongaInfo.state.viewSuyongaInfo;
-    const spotInfo = this.spotInfo.state.spotInfo;
+    const suyongaInfo = this.suyongaInfo.state.suyongaInfo;
     //const viewDestInfo = this.applicantInfo.state.viewApplyInfo;
     
-    let displayAddr = spotInfo.spotAddress ? spotInfo.spotAddress : ""//요약주소(보여주기용)
-    displayAddr = spotInfo.spotDetailAddress.trim().length > 0 ? displayAddr + " " + spotInfo.spotDetailAddress : displayAddr;
+    let displayAddr = suyongaInfo.suyongaAddress ? suyongaInfo.suyongaAddress : ""//요약주소(보여주기용)
+    displayAddr = suyongaInfo.suyongaDetailAddress.trim().length > 0 ? displayAddr + " " + suyongaInfo.suyongaDetailAddress : displayAddr;
+    //let displayAddr = (suyongaInfo.suyongaAddress && detailAddr)  ? suyongaInfo.suyongaAddress+" "+detailAddr : ""//요약주소(보여주기용)
     
+
     this.applicantInfo.setState({
       ...applicantState,
       applyInfo: {
         ...applicantState.applyInfo,
         // 신청인 주소에 도로 주소를 복사한다.
-        applyAddress: spotInfo.spotAddress,
-        applyDetailAddress: spotInfo.spotDetailAddress,
+        applyAddress: suyongaInfo.suyongaAddress,
+        applyDetailAddress: suyongaInfo.suyongaDetailAddress,
         applyDisplayAddress: displayAddr,
         // 신청인의 우편번호에 수용가 우편번호를 넣는다.
-        applyPostNumber: spotInfo.spotPostNumber,
-        zipcode: spotInfo.spotPostNumber,
-        sido: spotInfo.sido,
-        sigungu: spotInfo.sigungu,
-        fullDoroAddr: spotInfo.fullDoroAddr,
-        umd: spotInfo.umd,//법정동명
-        hdongNm: spotInfo.hdongNm,//행정동명
+        applyPostNumber: suyongaInfo.suyongaPostNumber,
+        zipcode: suyongaInfo.suyongaPostNumber,
+        sido: suyongaInfo.csSido,
+        sigungu: suyongaInfo.csGuCdNm,
+        fullDoroAddr: suyongaInfo.suyongaAddress,
+        umd: suyongaInfo.csBdongCdNm,//법정동명
+        hdongNm: suyongaInfo.csHdongCdNm,//행정동명
         dong: '',
-        doroCd: spotInfo.doroCd,
-        doroNm: spotInfo.doroNm,//도로명
+        doroCd: '',
+        doroNm: suyongaInfo.csRn,//도로명
         dzipcode: '',
-        bupd: spotInfo.bupd,//(수전주소-표준법정동 코드) <-> reqStdBdongCd(청구지수조 - 표준법정동 코드)
-
+        bupd: suyongaInfo.csStdBdongCd,//(수전주소-표준법정동 코드) <-> reqStdBdongCd(청구지수조 - 표준법정동 코드)
         bdMgrNum: '',
-        bdBonNum: spotInfo.bdBonNum,//건물본번
-        bdBuNum: spotInfo.bdBuNum,//건물부번
-        bdnm: spotInfo.bdnm,//건물명
-        bdDtNm: spotInfo.bdDtNm,//기타주소
-        addr2: spotInfo.addr2,//주소2
-        addr1: spotInfo.addr1,//주소1
-        bunji: spotInfo.bunji,//본번
-        ho: spotInfo.ho,//부번
-        extraAdd: spotInfo.extraAdd,//기타주소
-        specAddr: spotInfo.specAddr,//건물명
-        specDng: spotInfo.specDng,//동
-        specHo: spotInfo.specHo,//호
-        floors: spotInfo.floors//지하 층 번호
+        bdBonNum: suyongaInfo.csBldBon,//건물본번
+        bdBuNum: suyongaInfo.csBldBu,//건물부번
+        bdnm: suyongaInfo.csBldNm,//건물명
+        bdDtNm: suyongaInfo.csEtcAddr,//기타주소
+        addr2: suyongaInfo.csAddr2,//주소2
+        addr1: suyongaInfo.csAddr1,//주소1
+        bunji: suyongaInfo.csBon,//본번
+        ho: suyongaInfo.csBu,//부번
+        extraAdd: suyongaInfo.csEtcAddr,//기타주소
+        specAddr: suyongaInfo.csBldNm,//건물명
+        specDng: suyongaInfo.csBldDong,//동
+        specHo: suyongaInfo.csBldHo,//호
+        floors: suyongaInfo.csUgFloorNo//지하 층 번호
       },
-      viewSpotInfo: {
-        viewSpotAddress: spotInfo.spotPostNumber+ " " + spotInfo.applyDisplayAddress,
+      viewApplyInfo: {
+        //...viewDestInfo,
+        applyPostNumber: suyongaInfo.suyongaPostNumber,
+        applyAddress: suyongaInfo.suyongaAddress
       }
     });
     this.applicantInfo.setState({
       ...this.applicantInfo.state,
         copySuyongaAddress : true
     })
-    this.render();
+    this.applicantInfo.render();
     if($("#jusosearchapplicant").is(":visible")){
       this.applicantInfo.toggleJusoSearch();
     }
@@ -165,8 +227,18 @@ export default class NoSuyongaApplicationPage {
   }
 
   verify() {
-    if (!this.spotInfo.verify()) return false;
+    if (!this.suyongaInfo.verify()) return false;
     if (!this.applicantInfo.verify()) return false;
+    
+    // 통합민원 다건 선택 시 본인 확인 체크
+    const authCheck = $("#authentication").hasClass("display-none");
+    if(!authCheck && !this.authenticationInfo.state.isAuthenticated){
+      if(this.authenticationInfo3.state.isAuthenticated){
+        return true;
+      }
+      citizenAlert('본인 확인이 필요합니다.');
+      return false;
+    }
 
     if (!this.state.privacyAgree) {
       citizenAlert("개인정보 수집·이용에 동의해 주세요.");
@@ -183,6 +255,11 @@ export default class NoSuyongaApplicationPage {
     }
 
     return true;
+  }
+  
+  //
+  getAddData(){
+    return this.applicantInfo.state.addData;
   }
   
   priavcyAgreeLayer() {
@@ -202,88 +279,111 @@ export default class NoSuyongaApplicationPage {
     });
   }
   
+  handleUnityMinwonClick(minwonCd: string, opt: string){
+    const that = this;
+    const defaultMinwon = that.parent.state.minwonCd;
+    if(defaultMinwon === minwonCd){
+      return;
+    }
+    //통합민원 선택 시 처리
+    toggleMW(opt);
+    that.unityMinwons.setUnityMinwon(minwonCd, !that.unityMinwons.getUnityMinwon(minwonCd));
+    if((defaultMinwon === "B04") && that.unityMinwons.authCheck()){
+      $("#authentication").removeClass("display-none");
+      that.authenticationInfo.render();
+    }else if((defaultMinwon === "B04") && !that.unityMinwons.authCheck()){
+      $("#authentication").addClass("display-none");
+    }
+  }
+
   // 신청을 위한 데이터를 수집한다.
   getSuyongaQueryString() {
-    //민원발생지 주소정보
-    const data = this.spotInfo.state.spotInfo;
-    //민원발생지 주소 유형
-    let cvplAdresTy = "";
-    const minwonCd = this.parent.state.minwonCd;
-    if(minwonCd === "A08"){
-      cvplAdresTy = "YTRTD";
-    }else if(minwonCd === "A09"){
-      cvplAdresTy = "ACDNT";
-    }else if(minwonCd === "C01"){
-      cvplAdresTy = "OCCURR";
-    }
+
+    const data = this.suyongaInfo.state.suyongaInfo;
     //신청인 정보
     const data1 = this.applicantInfo.state.applyInfo;
     const phoneArr = phonePattern.exec(data1.applyPhone);
     const mobileArr = mobilePattern.exec(data1.applyMobile);
     const applyEmail = data1.applyEmailId + "@" + data1.applyEmailProvider;
     const applyRelation1 = data1.applyRelation1 !== '직접입력' ? data1.applyRelation1 : data1.applyRelation2;
+    
+    let cvplAdresTy;
+    const minwonCd = this.parent.state.minwonCd;
+    if(minwonCd === "I10" && this.parent.state.steps['I10'].step[1].state.minwonGubun === "A10"){
+      cvplAdresTy = "TUBE";
+    } else {
+      cvplAdresTy = "OWNER";//A03,A12,B04,B13,B14,B19,B25
+    }
+    let authYn = '';
+    if(minwonCd === 'A12' || minwonCd === "I10" || minwonCd === 'B13' || minwonCd === 'B19'){
+      authYn = 'Y';
+    }
     const recSec = $('#recSec').val() || null
     return {
       // 신청 기본 정보
       'cvplInfo.cvpl.treatSec': '001',
       'cvplInfo.cvpl.recSec': recSec? recSec:'003',
-      'cvplInfo.cvpl.mgrNo': '',
+      'cvplInfo.cvpl.mgrNo': data.suyongaNumber,
+      
+      //본인확인
+      'authCertResultVO.reqSeq' : this.authenticationInfo3.state.authInfo.data.reqSeq,
       
       // 신청 부가 정보
       'cvplInfo.cvplProcnd.cyberUserKey': $('#userKey').val(),
       'cvplInfo.cvplProcnd.officeYn': 'N',
       'cvplInfo.cvplProcnd.privacyAgree': this.state.privacyAgree ? 'Y' : 'N',
       'cvplInfo.cvplProcnd.smsAllowYn': this.state.smsAgree ? 'Y' : 'N',
+      'cvplInfo.cvplProcnd.authYn': authYn,
 
       // 수용가 정보
-      'cvplInfo.cvplOwner.csOfficeCd': '',
-      'cvplInfo.cvplOwner.mblckCd': '',
-      'cvplInfo.cvplOwner.mblckCdNm': '',
-      'cvplInfo.cvplOwner.sblckCd': '',
-      'cvplInfo.cvplOwner.sblckCdNm': '',
-      'cvplInfo.cvplOwner.ownerNm': '',
-      'cvplInfo.cvplOwner.usrName': '',
-      'cvplInfo.cvplOwner.idtCdSNm': '',
+      'cvplInfo.cvplOwner.csOfficeCd': data.csOfficeCd,
+      'cvplInfo.cvplOwner.mblckCd': data.mblckCd,
+      'cvplInfo.cvplOwner.mblckCdNm': data.mblckCdNm,
+      'cvplInfo.cvplOwner.sblckCd': data.sblckCd,
+      'cvplInfo.cvplOwner.sblckCdNm': data.sblckCdNm,
+      'cvplInfo.cvplOwner.ownerNm': data.suyongaName,
+      'cvplInfo.cvplOwner.usrName': data.usrName,
+      'cvplInfo.cvplOwner.idtCdSNm': data.idtCdSNm,
       'cvplInfo.cvplOwner.reqKbnNm': '',
 
       // 수용자 주소 정보
       'cvplInfo.cvplAddr[0].cvplAdresTy': cvplAdresTy,
-      'cvplInfo.cvplAddr[0].sido': data.sido,
-      'cvplInfo.cvplAddr[0].sigungu': data.sigungu,
-      'cvplInfo.cvplAddr[0].umd': data.umd,
-      'cvplInfo.cvplAddr[0].hdongNm': data.hdongNm,
-      'cvplInfo.cvplAddr[0].dong': data.dong,
-      'cvplInfo.cvplAddr[0].doroCd': data.doroCd,
-      'cvplInfo.cvplAddr[0].doroNm': data.doroNm,
-      'cvplInfo.cvplAddr[0].dzipcode': data.dzipcode,            // 도로우편번호
-      'cvplInfo.cvplAddr[0].bupd': data.bupd,
-      'cvplInfo.cvplAddr[0].bdMgrNum': data.bdMgrNum,            // 빌딩관리번호
-      'cvplInfo.cvplAddr[0].bdBonNum': data.bdBonNum,
-      'cvplInfo.cvplAddr[0].bdBuNum': data.bdBuNum,
-      'cvplInfo.cvplAddr[0].bdnm': data.bdnm,      // specAddr/csBldNm와 동일 특수주소(건물,아파트명)
-      'cvplInfo.cvplAddr[0].bdDtNm': data.bdDtNm,  //extraAdd/csEtcAddr와 동일 특수주소(건물,아파트명) 기타 입력
-      'cvplInfo.cvplAddr[0].addr2': data.addr2,
-      'cvplInfo.cvplAddr[0].zipcode': data.zipcode,
-      'cvplInfo.cvplAddr[0].fullDoroAddr': data.fullDoroAddr,
-      'cvplInfo.cvplAddr[0].addr1': data.addr1,
-      'cvplInfo.cvplAddr[0].bunji': data.bunji,
-      'cvplInfo.cvplAddr[0].ho': data.ho,
-      'cvplInfo.cvplAddr[0].extraAdd': data.extraAdd ? data.extraAdd+" "+data.spotDetailAddress : data.spotDetailAddress,
-      'cvplInfo.cvplAddr[0].specAddr': data.specAddr,
-      'cvplInfo.cvplAddr[0].specDng': data.specDng,
-      'cvplInfo.cvplAddr[0].specHo': data.specHo,
-      'cvplInfo.cvplAddr[0].floors': data.floors,
+      'cvplInfo.cvplAddr[0].sido': data.csSido,
+      'cvplInfo.cvplAddr[0].sigungu': data.csGuCdNm,
+      'cvplInfo.cvplAddr[0].umd': data.csBdongCdNm,//법정동명
+      'cvplInfo.cvplAddr[0].hdongNm': data.csHdongCdNm,//행정동명
+      'cvplInfo.cvplAddr[0].dong': '',
+      'cvplInfo.cvplAddr[0].doroCd': '',
+      'cvplInfo.cvplAddr[0].doroNm': data.csRn,
+      'cvplInfo.cvplAddr[0].dzipcode': '',            // 도로우편번호
+      'cvplInfo.cvplAddr[0].bupd': data.csStdBdongCd,
+      'cvplInfo.cvplAddr[0].bdMgrNum': '',            // 빌딩관리번호
+      'cvplInfo.cvplAddr[0].bdBonNum': data.csBldBon,
+      'cvplInfo.cvplAddr[0].bdBuNum': data.csBldBu,
+      'cvplInfo.cvplAddr[0].bdnm': data.csBldNm,      // specAddr/csBldNm와 동일 특수주소(건물,아파트명)
+      'cvplInfo.cvplAddr[0].bdDtNm': data.csEtcAddr,  //extraAdd/csEtcAddr와 동일 특수주소(건물,아파트명) 기타 입력
+      'cvplInfo.cvplAddr[0].addr2': data.csAddr2,
+      'cvplInfo.cvplAddr[0].zipcode': data.suyongaPostNumber,
+      'cvplInfo.cvplAddr[0].fullDoroAddr': data.suyongaAddress,
+      'cvplInfo.cvplAddr[0].addr1': data.csAddr1,
+      'cvplInfo.cvplAddr[0].bunji': data.csBon,
+      'cvplInfo.cvplAddr[0].ho': data.csBu,
+      'cvplInfo.cvplAddr[0].extraAdd': data.suyongaDetailAddress,
+      'cvplInfo.cvplAddr[0].specAddr': data.csBldNm,
+      'cvplInfo.cvplAddr[0].specDng': data.csBldDong,
+      'cvplInfo.cvplAddr[0].specHo': data.csBldHo,
+      'cvplInfo.cvplAddr[0].floors': data.csUgFloorNo,
 
       // 신청인 정보
-      'cvplInfo.cvpl.applyNm': data1.applyName,  // 신청인 이름
+      'cvplInfo.cvpl.applyNm': this.applicantInfo.state.applyInfo.applyName,  // 신청인 이름
       'cvplInfo.cvplApplcnt.telno1': phoneArr ? phoneArr[1] : '',
       'cvplInfo.cvplApplcnt.telno2': phoneArr ? phoneArr[2] : '',
       'cvplInfo.cvplApplcnt.telno3': phoneArr ? phoneArr[3] : '',
       'cvplInfo.cvplApplcnt.hpno1': mobileArr ? mobileArr[1] : '',
       'cvplInfo.cvplApplcnt.hpno2': mobileArr ? mobileArr[2] : '',
       'cvplInfo.cvplApplcnt.hpno3': mobileArr ? mobileArr[3] : '',
-      'cvplInfo.cvplApplcnt.email': applyEmail, //this.state.applicantInfo.state.viewApplyInfo.viewApplyEmail[0],
-      'cvplInfo.cvplApplcnt.relation1': data1.applyRelation,
+      'cvplInfo.cvplApplcnt.email': applyEmail, //this.applicantInfo.state.viewApplyInfo.viewApplyEmail[0],
+      'cvplInfo.cvplApplcnt.relation1': this.applicantInfo.state.applyInfo.applyRelation,
       'cvplInfo.cvplApplcnt.relation2': applyRelation1, // 기존은 사용자/소유자 -> 관계로 설정 / 사용여부 고려 해봐야 => TM_CVPL_APPLCNT table 데이터 필요. 기존대로 변경.
 
       // 신청인 주소 정보
@@ -304,7 +404,7 @@ export default class NoSuyongaApplicationPage {
       'cvplInfo.cvplAddr[1].bdDtNm': data1.bdDtNm,  //extraAdd/csEtcAddr와 동일 특수주소(건물,아파트명) 기타 입력   
       'cvplInfo.cvplAddr[1].addr2': data1.addr2,                                                   
       'cvplInfo.cvplAddr[1].zipcode': data1.zipcode,                                               
-      'cvplInfo.cvplAddr[1].fullDoroAddr': data1.fullDoroAddr,                                     
+      'cvplInfo.cvplAddr[1].fullDoroAddr': data1.applyAddress,                                     
       'cvplInfo.cvplAddr[1].addr1': data1.addr1,                                                   
       'cvplInfo.cvplAddr[1].bunji': data1.bunji,                                                   
       'cvplInfo.cvplAddr[1].ho': data1.ho,                                                         
@@ -312,21 +412,37 @@ export default class NoSuyongaApplicationPage {
       'cvplInfo.cvplAddr[1].specAddr': data1.specAddr,                                             
       'cvplInfo.cvplAddr[1].specDng': data1.specDng,                                               
       'cvplInfo.cvplAddr[1].specHo': data1.specHo,                                                 
-      'cvplInfo.cvplAddr[1].floors': data1.floors                                               
+      'cvplInfo.cvplAddr[1].floors': data1.floors
     };
   }
 
   // 화면을 그려주는 부분이다.
   render() {
     const that = this;
+    const minwonCd = that.parent.state.minwonCd;
+    const userIp = $("#userIp").val();
     let template = `
       <!-- 민원안내 -->
-      <div class="mw-box" id="desc"></div><!-- //mw-box -->    
-      <div class="mw-box" id="spot"></div><!-- //mw-box -->
+      <div class="mw-box" id="desc"></div><!-- //mw-box -->
+    `;
+    template += `
+      <div class="mw-box info" id="suyonga"></div><!-- //mw-box -->
+    `;
+    if(minwonCd !== "B04" && minwonCd !== "B14" && minwonCd !== "B14_1"  && minwonCd !== "B25"){
+      template += `
+        <!-- 본인확인 -->      
+        <div class="mw-box" id="authentication"></div>
+      `;
+    }else{
+      template += `
+        <!-- 본인확인 -->      
+        <div class="mw-box display-none" id="authentication"></div>
+      `;
+    }
+    template += `
+    
       <!-- 신청인정보 -->
-      <div class="mw-box" id="applicant">
-
-      </div><!-- //mw-box -->
+      <div class="mw-box" id="applicant"></div><!-- //mw-box -->
   
       <!-- 민원 신청 안내 및 동의 -->
       <div class="mw-box">
@@ -396,13 +512,68 @@ export default class NoSuyongaApplicationPage {
     document.getElementById('minwonRoot')!.innerHTML = template;
     document.getElementById('privacyAgreeInfo')!.innerHTML = getPrivacyAgree();
     // 후처리를 위한 로직이 수행될 부분들
-    this.afterRender();
+    that.afterRender();
   }
 
   afterRender() {
     // 안내 절차를 받아온다.
+    const minwonCd = this.parent.state.minwonCd;
     this.parent.state.steps[this.parent.state.minwonCd].step[1].renderDescription(document.getElementById('desc'));
-    this.spotInfo.render();
+//    if(minwonCd === "B04" || minwonCd === 'B14' ||minwonCd === 'B19' || minwonCd === 'B25'){
+//      if(minwonCd === "B04") addMW("#dGubun1");
+//      if(minwonCd === "B14") addMW("#dGubun2");
+//      if(minwonCd === "B19") addMW("#dGubun3");
+//      if(minwonCd === "B25") addMW("#dGubun4");
+//    }
+    this.suyongaInfo.render();
+//    if(minwonCd === "B14"){
+//      this.authenticationInfo.render();
+//    }else 
+    if(minwonCd !== "B04" && minwonCd !== "B14" && minwonCd !== "B14_1" && minwonCd !== "B25"){
+      this.authenticationInfo3.render();
+    }
     this.applicantInfo.render();
+    if(minwonCd === 'B14'){
+      const serverTimeCall = serverTime()
+      serverTimeCall.then(val => {
+        console.log(`serverTime ::${val}`)
+        //real 20240126180000 20240127060000
+        //test 20240125100000 20240125170000
+        if(!this.noticeCheck && val >= '20240126180000' && val <= '20240127060000'){
+          this.showNotice()
+        }
+      })
+    }
+  }
+  
+  showNotice(){
+//    const title = `자동납부 전자서명 간편인증 서비스 일시 중단 안내`
+    let noticeMsg = `
+      <div style="text-align:center;"><span class="txStrong" style="font-size:16px; text-decoration: underline;">간편인증 서비스 일시 중단 안내</span></div>
+      <p class="txBlue txStrong" style="text-align:justify;">- 중단일시 : 2024.1.26.(금) 22:00 ~ 1.27.(토) 06:00</p><br>
+      <p style="text-align:justify;">간편인증 시스템 개선 작업으로 서비스가 일시 중단 되오니,<br>해당 시간동안은 다른 인증수단을 이용해 주시기 바랍니다.<br>이용에 불편을 드려 죄송합니다.</p>
+    `
+//    const UserAgent = navigator.userAgent;
+//    if(UserAgent.match(/iPhone|iPod|Android|Windows CE|BlackBerry|Symbian|Windows Phone|webOS|Opera Mini|Opera Mobi|POLARIS|IEMobile|lgtelecom|nokia|SonyEricsson/i) != null 
+//                || UserAgent.match(/LG|SAMSUNG|Samsung/) != null){ //모바일인 경우
+//      noticeMsg += `<p class="bd-gray">해당 기간 금융인증서로만 전자서명이 가능하오니 자동납부 신청/해지시 참고 바랍니다.</p>`
+//    }else{
+//      noticeMsg += `<p class="bd-gray">해당 기간 금융인증서 및 공동인증서로만 전자서명이 가능하오니 자동납부 신청/해지시 참고 바랍니다.</p>`
+//    }
+    citizenAlert3(noticeMsg).then(result => {
+      if(result){
+        this.noticeCheck = true
+        console.log(`notice end`)
+      }else{
+        return;
+      }
+    });
+//    citizenAlert2(title, noticeMsg, true).then(result => {
+//      if(result){
+//        console.log(`notice end`)
+//      }else{
+//        return;
+//      }
+//    });
   }
 }

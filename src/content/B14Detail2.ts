@@ -1,9 +1,10 @@
 // 자동 납부 신청
 import CyberMinwon from '../infra/CyberMinwon';
+//import AthenticationInfo from '../components/AuthenticationInfo2';
 import { fetch } from './../util/unity_resource';
 import {
   showHideInfo2, maskingFnc,  saupsoInfo,
-  birthdayInputValidation, citizenAlert, citizenConfirm, citizenAlert2
+  hideElement, citizenAlert, citizenConfirm, citizenAlert2
 } from './../util/uiux-common';
 import { getB14Agree } from './B14Agree';
 import { getDescription } from './B14Description';
@@ -23,6 +24,7 @@ declare var cyberMinwon: CyberMinwon;
 export default class B14DetailPage {
   state: any;
   path: string;
+  //authenticationInfo: AthenticationInfo;
   constructor(parent: any, minwonCd: string) {
     this.state = {
       minwonCd,
@@ -62,7 +64,7 @@ export default class B14DetailPage {
       description: {},
       bankMeta: []
     }
-
+    //this.authenticationInfo = new AthenticationInfo(this);
     this.path = 'cyberMinwon.state.currentModule.state.currentPage';
     this.setInitValue();
   }
@@ -126,27 +128,21 @@ export default class B14DetailPage {
     const that = this;
     const sessionData = CyberMinwonStorage.getStorageData();
     let suyongaNum = '';
-    let authName, authNumber, officeCd = ''
+    let authName, authNumber = ''
     if(sessionData){
       suyongaNum = sessionData.mkey;
       authName = sessionData.applicantInfo.applyName?sessionData.applicantInfo.applyName:''
       //authName = sessionData.authenticationInfo.authInfo?sessionData.authenticationInfo.authInfo.authName:''
       //authNumber = sessionData.authenticationInfo.authInfo?sessionData.authenticationInfo.authInfo.authNumber:''
-      console.log(that.state.parent)
-      console.log(that.state.parent.state)
-      if(that.state.parent.state.page == 0){
-        officeCd = that.state.parent.state.currentPage.suyongaInfo.state.suyongaInfo.csOfficeCd
-      }else{
-        officeCd = that.state.parent.state.applicationPage.suyongaInfo.state.suyongaInfo.csOfficeCd
-      }
     }else{
-      console.log(that.state.parent)
       suyongaNum = that.state.parent.state.parent.state.currentModule.state.applicationPage.suyongaInfo.state.suyongaInfo.mkey;
-      officeCd = that.state.parent.state.parent.state.currentModule.state.applicationPage.suyongaInfo.state.suyongaInfo.csOfficeCd
     }
+    console.log(that.state.parent)
+    const officeCd = that.state.parent.state.parent.state.currentModule.state.applicationPage.suyongaInfo.state.suyongaInfo.csOfficeCd
     
     let officeNm,telNo = ''
     const saupso = saupsoInfo.find(ele => ele.saupsoCd === officeCd);
+    
     if(typeof saupso  === 'undefined') {
       
     }else{
@@ -214,6 +210,7 @@ export default class B14DetailPage {
 //            ruleAgreement: false,
 //            prvcClctAgreYn: false, 
 //            prvcPvsnAgreYn: false, 
+
           }
         })        
       }else{
@@ -229,8 +226,6 @@ export default class B14DetailPage {
         }
         const authInfo = sessionData?sessionData.authenticationInfo.authInfo : null;
         const applicantInfo = this.state.parent.state.applicationPage.applicantInfo.state.applyInfo
-        console.log('신규')
-        console.log(applicantInfo)
 
         that.setState({
           ...that.state,
@@ -254,8 +249,7 @@ export default class B14DetailPage {
 //            prvcClctAgreYn: false, 
 //            prvcPvsnAgreYn: false,
           }
-        });
-        console.log(that.state.requestInfo)
+        });        
         searchResult = true
       }
       return searchResult;
@@ -420,11 +414,6 @@ export default class B14DetailPage {
         citizenAlert("실명번호가 없습니다. 실명번호를 입력해 주세요.");
         return false;
       }
-      
-      if (requestInfo.authNumber.length != 6) {
-        citizenAlert("실명번호 6자리를 입력해 주세요.");
-        return false;
-      }
   
       // 계좌 상태 및 인증 상태 확인
       if (!conditionInfo.isValidAccount && requestInfo.gubun === "1") {
@@ -520,7 +509,7 @@ export default class B14DetailPage {
     const requestInfo = this.state.requestInfo;
     const statusInfo = this.state.statusInfo;
     const transkeyInfo = this.state.transkeyInfo;
-    const authInfo = this.state.parent.state.summaryPage.authenticationInfo.state.authInfo;
+    const authInfo = this.state.parent.state.summaryPage.authenticationInfo3.state.authInfo;
 
     const autoPayData = {
       'id': transkeyInfo.id, 
@@ -711,21 +700,7 @@ export default class B14DetailPage {
         authNumber: fncCutByByte(e.target.value.replace(/[^0-9]/g,""), 6),
       }
     });
-    if(this.state.requestInfo.authNumber.length == 0){
-      e.target.classList.remove("success","err");
-    }else{
-      if(birthdayInputValidation(e.target, 6)){
-        
-        e.target.value = this.state.requestInfo.authNumber
-      }else{
-        e.target.value = this.state.requestInfo.authNumber
-//        citizenAlert("실명번호 6자리를 정확히 입력해주세요.").then(result => {
-//          if(result){
-//            $("#authNumber").focus();
-//          }
-//        });
-      }
-    }
+    e.target.value = this.state.requestInfo.authNumber
   }
   
   handleAccountChange(){
@@ -834,10 +809,8 @@ export default class B14DetailPage {
     const applyDate = $("#applyDt").val()
     const splitDate = applyDate.split('.')
     const thDay = new Date(Number(splitDate[0]),Number(splitDate[1])-1,Number(splitDate[2])).getDay()
-    const hostName = location.hostname;
-//    if(hostName === "localhost" ){ || (hostName.indexOf('98.42.34.126') === 0 || hostName.indexOf('98.42.34.22') === 0 )
-//    if(hostName === "localhost" || (thDay !== 3 && thDay !== 4 && (hostName.indexOf('98.42.34.126') === 0 || hostName.indexOf('98.42.34.22') === 0 ))){
-    if(hostName === "localhost" ){
+    const hostName = location.hostname;//thDay !== 3 && thDay !== 4 && 
+    if(hostName === "localhost" || hostName.indexOf('98.42.34.126') === 0 || hostName.indexOf('98.42.34.22') === 0 ){
       that.setState({
         ...that.state,
         conditionInfo : {
@@ -872,7 +845,6 @@ export default class B14DetailPage {
         citizenAlert("사용가능한 계좌로 확인되었습니다.");
         $("#n_account_no_new").prop("disabled", true);
         $("#bankSelector").val(data.bankCd);
-        $('#authName').val(data.acctOwner)
         $("#bankSelector").prop("disabled", true);
         $("#acctChange").show()
         isValidAccount = true;
@@ -1139,7 +1111,7 @@ export default class B14DetailPage {
           <div class="form-mv row">
             <ul>
               <li>
-                <label for="bankSelector" class="input-label"><span class="form-req"><span class="sr-only">필수</span>은행명</span></label>
+                <label for="bankSelector" class="input-label"><span class="form-req">은행명</span></label>
                 <select id="bankSelector"
                   onchange="${that.path}.handleBankSelector(event)"
                   name="bankSelector" title="은행명 선택" class="input-box input-w-2">
@@ -1149,7 +1121,7 @@ export default class B14DetailPage {
                 </a>
               </li>
               <li class="mw-opt-2">
-                <label for="n_account_no_new" class="input-label"><span class="form-req"><span class="sr-only">필수</span>계좌번호 </span></label>
+                <label for="n_account_no_new" class="input-label"><span class="form-req">계좌번호 </span></label>
                   <input type="text" id="n_account_no_new" class="input-box input-w-2" 
                     data-tk-kbdType="number" value="" autocomplete="new-password" maxlength="30" title="계좌번호"  
                     onclick="mtk.onKeyboard(this);"
@@ -1160,19 +1132,19 @@ export default class B14DetailPage {
                 <a href="javascript:void(0);" onclick="${that.path}.handleAccountHist()" class="btn btnSS btnTypeB"><span>계좌이력확인</span></a>
               </li>
               <li>
-                <p class="form-cmt pre-star tip-blue">휴대폰번호계좌나 평생계좌번호는 처리불가함(실계좌 입력)</p>
-              </li>
-              <li>
-                <label for="authName" class="input-label"><span class="form-req"><span class="sr-only">필수</span>예금주명</span></label>  
-                  <input type="text" id="authName" value="${that.state.requestInfo.authName}"
+                <label for="authName" class="input-label"><span class="form-req">예금주명</span></label>  
+                  <input type="text" id="authName"
+                    value="${that.state.requestInfo.authName}"
+                    onchange="${that.path}.tempChanageName(event)"
                     class="input-box input-w-2" placeholder="성명(예금주)" readonly>
               </li>
   
               <li>
-                <label for="authNumber" class="input-label"><span class="form-req"><span class="sr-only">필수</span>실명번호</span></label>
-                  <input type="text" id="authNumber" value="${that.state.requestInfo.authNumber}" maxlength="6"
-                    onchange="${that.path}.tempChanageNumber(event)" onkeyup="${that.path}.tempChanageNumber(event)"
-                    onpaste="${that.path}.tempChanageNumber(event)" onblur="${that.path}.tempChanageNumber(event)"
+                <label for="authNumber" class="input-label"><span class="form-req">실명번호</span></label>
+                  <input type="text" id="authNumber" value="${that.state.requestInfo.authNumber}"
+                    onchange="${that.path}.tempChanageNumber(event)"
+                    onkeyup="${that.path}.tempChanageNumber(event)"
+                    onpaste="${that.path}.tempChanageNumber(event)"
                     class="input-box input-w-2" placeholder="실명번호" >
               </li>
                 <p class="form-cmt form-cmt-1">
@@ -1182,7 +1154,7 @@ export default class B14DetailPage {
                   * <span class="txStrongColor">법인</span>은 <span class="txStrongColor">수도사업소 또는 서울시ETAX(etax.seoul.go.kr)</span>에서 신청해 주세요.</span>
                 </p>
                 <p class="form-cmt form-cmt-1">
-                  * <span>증권계좌는 자동납부 신청이 불가합니다.(지방세징수법에 의거 증권사는 지방세수납대행기관에 해당되지 않습니다.)</span>
+                  <span>* 증권계좌는 자동납부 신청이 불가합니다.(지방세징수법에 의거 증권사는 지방세수납대행기관에 해당되지 않습니다.)</span>
                 </p>
               <li>
                 
@@ -1242,7 +1214,11 @@ export default class B14DetailPage {
         </div>
       </div><!-- //form-mw23 -->
       </div><!-- //mw-box -->
-  
+      
+      <!-- 전자서명 
+      <div class="mw-box" id="authentication"></div>
+      -->      
+      
       <div id="agreeEdge" class="mw-box row">
       <!-- 약관동의 -->
       <div id="form-mw24" class="row">
@@ -1340,10 +1316,7 @@ export default class B14DetailPage {
   }
 
   afterRender() {
-    const that = this
     const requestInfo = this.state.requestInfo;
-    const applyInfo = that.state.parent.state.applicationPage.applicantInfo.state.applyInfo
-    console.log(applyInfo)
     // 신청, 해지 버튼 그려주기
     if (requestInfo.gubun === '1') {
       $("#aGubun1").addClass("on");
@@ -1354,7 +1327,6 @@ export default class B14DetailPage {
       $('#mw-box2').addClass("display-none");
       $('#mw-box2').removeClass("display-block");
       $('#showMsg').show()
-      $('#authName').val(applyInfo.applyName)
     } else if (requestInfo.gubun === '2') {
       $("#aGubun2").addClass("on");
       $("#aGubun1").removeClass("off");
@@ -1391,6 +1363,7 @@ export default class B14DetailPage {
       $("#authName").prop("readonly", false);
       $("#authNumber").prop("readonly", false);
     }
+    //this.authenticationInfo.render();
   }
 
   renderDescription(target: any) {
@@ -1399,7 +1372,7 @@ export default class B14DetailPage {
     const desc = `
         <div id="form-mw0" class="row">
           <div class="tit-mw-h3"><a href="javascript:void(0);" 
-            onClick="toggleLayer('#form-mw0');" class="on" title="펼치기">
+            onClick="toggleLayer('#form-mw0');" class="on" title="닫기">
             <span class="i-06 txStrongColor">민원안내 및 처리절차</span></a>
           </div>
           <div id="innerDesc" class="form-mw-box display-none row">

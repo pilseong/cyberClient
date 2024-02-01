@@ -1,48 +1,49 @@
 import CyberMinwon from '../infra/CyberMinwon';
 import { fetch } from './../util/unity_resource';
-import { citizenAlert, citizen_alert, citizenConfirm, maskingFnc, getNowDate, lpad } from './../util/uiux-common';
+import { radioMW, citizenAlert, citizen_alert, citizenConfirm, maskingFnc, getNowDate, lpad } from './../util/uiux-common';
 
-declare var fncGetCodeByGroupCdUsing: (code: string) => string;
 declare var gContextUrl: string;
-declare var fncSetCombo: (param1: string, param2: string, param3: string, data: any) => void;
-declare var fncCutByByte: (str: string, maxByte: number) => string;
+declare var gVariables: any;
 declare var $: any;
 declare var cyberMinwon: CyberMinwon;
+declare var fncCutByByte: (str: string, maxByte: number) => string;
 
-export default class A07DetailPage {
+export default class I10DetailPage {
   path: string;
   state: {
       minwonCd: string;
       parent: any;
-      isSubmitSuccessful: boolean;
-      submitResult: any,
+      minwonGubun: string;
       statusInfo: any;
       requestInfo: {
-        reasonTy: string; // 수질유형 코드
-        reasonNm: string; // 수질유형-기타입력
-        contents: string; // 민원내용
-        visitPlan: string;   // 방문 희망일
+        //A03 constDt contents
+        constDt: string;// 이설희망일
+        contents: string;  // 신청내용(사유)
+        //A10 compDt etc
       },
+      isSubmitSuccessful: boolean;
+      submitResult: any,
       viewRequestInfo: any;
       description: any;
   };
-
-  constructor(parent: any, minwonCd: any) {
+  
+  constructor(parent: any, minwonCd: string) {
     this.state = {
       minwonCd,
       parent,
-      isSubmitSuccessful: false,
-      submitResult: {},
+      minwonGubun: 'A03', //민원구분 guBunType1 guBunType2
       statusInfo: {},
       requestInfo: {
-      	reasonTy: '',   // 수질유형 코드
-    	  reasonNm: '',   // 수질유형-기타입력
-    	  contents: '',  // 내용
-    	  visitPlan: ''  // 방문 희망일
+        //A03
+        constDt: '',// 이설희망일
+        contents: '',  // 신청내용(사유)
+        //A10
       },
+      isSubmitSuccessful: false,
+      submitResult: {},
       viewRequestInfo: {},
       description: {}
-    };
+    }
     this.path = 'cyberMinwon.state.currentModule.state.currentPage';
 
     this.setInitValue();
@@ -54,10 +55,8 @@ export default class A07DetailPage {
     that.setState({
       ...that.state,
       requestInfo: {
-        reasonTy: '',   // 수질유형 코드
-        reasonNm: '',   // 수질유형-기타입력
-        contents: '',  // 내용
-        visitPlan: ''  // 방문 희망일
+        constDt: '',// 이설희망일
+        contents: '',  // 신청내용(사유)
       }
     });
   }
@@ -69,24 +68,18 @@ export default class A07DetailPage {
       ...that.state,
       description: data 
     });
-    let reasonTy = fncGetCodeByGroupCdUsing("044");
-    
-    that.setState({
-      ...that.state,
-      statusInfo: {
-        comboReasonTy: reasonTy
-      }
-    });
   }
 
   // InfoPanel 데이터 설정
   getViewInfo() {
-  	return {
+    const that = this;
+    
+    return {
       noinfo: {
-//        title: this.state.description.minwonNm,
-        reasonNm: [(this.state.requestInfo.reasonTy==='008'?'기타 - '+this.state.requestInfo.reasonNm:this.state.requestInfo.reasonNm), '수질검사 유형'],
-        contents: [this.state.requestInfo.contents, '신청내용'],
-        visitPlan: [this.state.requestInfo.visitPlan, '방문 희망일']
+//        title: that.state.description.minwonNm,
+        minwonGubun: [(this.state.minwonGubun==="A03"?"수용가 자체 이설":"수도사업소 이설"), '이설유형'],
+        constDt: [this.state.requestInfo.constDt, '이설희망일'],
+        contents: [this.state.requestInfo.contents, '신청내용(사유)']
       }
     };
   }
@@ -96,20 +89,21 @@ export default class A07DetailPage {
     const infoData: any = {};
     const applyNm = this.state.parent.state.applicationPage.getSuyongaQueryString()['cvplInfo.cvpl.applyNm'];
     const applyDt = $("#applyDt").val();
+    const minwonGubun = this.state.minwonGubun;
     // 신청 실패 화면
     if (!this.state.isSubmitSuccessful) {
       infoData['noinfo'] = {
-//        title: this.state.description.minwonNm+' 결과',
+//        title: minwonGubun === "A03"? '수용가 자체 이설 신청': '수도사업소 이설 신청' + ' 결과',
         width: "150px",
         applyNm: [maskingFnc.name(applyNm, "*"), '신청인'],
         applyDt: [this.state.submitResult.data.applyDt?this.state.submitResult.data.applyDt:applyDt, '신청일시'],
         desc: ['정상적으로 처리되지 않았습니다.', '신청결과'],
-        cause: [this.state.submitResult.errorMsg,'사유']
+        cause: [this.state.submitResult.errorMsg,'신청내용(사유)']
       }
     // 성공
     } else {
       infoData['noinfo'] = {
-//        title:  this.state.description.minwonNm+' 결과',
+//        title: minwonGubun === "A03"? '수용가 자체 이설 신청': '수도사업소 이설 신청' + ' 결과',
         width: "150px",
         receipt_no : [this.state.submitResult.data.receiptNo, '접수번호'],
         applyNm: [maskingFnc.name(applyNm, "*"), '신청인'],
@@ -130,90 +124,60 @@ export default class A07DetailPage {
 
   // 입력사항 검증 로직
   verify() {
+    const that = this;
     const requestInfo = this.state.requestInfo;
 
-    
-    if (!requestInfo.reasonTy) {
-      citizenAlert("수질검사 유형을 선택해 주세요.");
+    if(this.state.minwonGubun == "A03"){
       
-      return false;
-    }
-    if (requestInfo.reasonTy === '008' && !requestInfo.reasonNm ) {
-    	citizenAlert("수질검사 유형이 기타일 경우 필수 입력해 주세요.");
-    	
-    	return false;
+      if (!requestInfo.constDt) {
+        citizenAlert("이설희망일을 입력해 주세요.").then(result => {
+          if(result){
+            $("#constDt").focus();
+          }
+        });
+        return false;
+      }
     }
     if (!requestInfo.contents) {
-      citizenAlert("신청내용을 입력해 주세요.").then(result => {
+      citizenAlert("신청내용(사유)를 입력해 주세요.").then(result => {
         if(result){
           $("#contents").focus();
         }
       });
-    	return false;
-    }
-    
-    let visitPlan = requestInfo.visitPlan.replace(/[^0-9]/g,"")
-    if(visitPlan && (Number(visitPlan) < 10000101 || Number(visitPlan) > 21001231)){
-      citizenAlert("방문 희망일을 확인해 주세요.").then(result => {
-        if(result){
-          $("#visitPlan").focus();
-        }
-      });
       return false;
     }
-    
     return true;
   }
   
-  handleChangeReason(e: any) {
-  	
-  	let value = e.value;
-  	let name = e.options[e.selectedIndex].text;
-  	let preValue = this.state.requestInfo.reasonTy;
-  	
-  	if (value == '008') {//기타
-  		$("#reasonNm").show();
-  		$("#reasonNm").val((preValue == '008' && this.state.requestInfo.reasonTy) ? this.state.requestInfo.reasonNm : '');
-  	} else {
-  		$("#reasonNm").hide();
-  		$("#reasonNm").val(name);
-  	}
-  	
-  	this.setState({
-				...this.state,
-				requestInfo: {
-					...this.state.requestInfo,
-					reasonTy: value,
-					reasonNm: value === '008'? ((preValue == '008' && this.state.requestInfo.reasonNm) ? this.state.requestInfo.reasonNm : '') : name
-				}
-		});
+  //신청 구분에 따른 UI 활성화
+  toggleUIGubun(gubun:String, id:string, uiBox:string) {
+    //disble처리
+    if($(id).hasClass("disable")){
+      return false;
+    }
+    this.setState({
+      ...this.state,
+      minwonGubun : gubun
+    })
+    $(".aGubun").removeClass("disable");
+    radioMW(id, uiBox);
+    let minwonCd = "";
+    //이설희망일 필수 표시 변경
+    if(gubun === "A03"){
+      $("#constDt").prev().children().addClass("form-req");
+      minwonCd = "A03";
+    }else{
+      $("#constDt").prev().children().removeClass("form-req");
+      minwonCd = "A10";
+    }
+    this.setState({
+      ...this.state,
+      minwonGubun:minwonCd
+    });
   }
   
   //
-  handleChangeReasonNm(e: any) {
-  	this.setState({
-      ...this.state,
-      requestInfo: {
-        ...this.state.requestInfo,
-        reasonNm: e.target.value.substring(0,100)
-      }
-    });
-  	e.target.value = this.state.requestInfo.reasonNm.substring(0,100);
-  }
-  
-  handleChangeContents(e: any) {
-  	
-  	this.setState({
-			...this.state,
-			requestInfo: {
-				...this.state.requestInfo,
-				contents: fncCutByByte(e.target.value, 1500)
-			}
-  	});
-  	e.target.value = this.state.requestInfo.contents;
-  }
-  
-  handleChangeVisitPlan(e: any) {
+  handleChangeConstDt(e: any) {
     let comDate1 = new Date(e.target.value)
     
     let dateMap = getNowDate();
@@ -233,22 +197,35 @@ export default class A07DetailPage {
                        
       e.target.value = returnYear+"-"+returnMonth+"-"+returnDay;
     }
-    
+
     this.setState({
       ...this.state,
       requestInfo: {
         ...this.state.requestInfo,
-        visitPlan: e.target.value
+        constDt: e.target.value
       }
     });
-    e.target.value = this.state.requestInfo.visitPlan;
+    e.target.value = this.state.requestInfo.constDt;
+  }
+  
+  //
+  handleChangeContents(e: any) {
+    this.setState({
+      ...this.state,
+      requestInfo: {
+        ...this.state.requestInfo,
+        contents: fncCutByByte(e.target.value, 1500)
+      }
+    });
+    e.target.value = this.state.requestInfo.contents;
   }
   
   // 서비스를 서버로 요청한다.
   submitApplication() {
     const that = this;
 
-    var url = gContextUrl + "/citizen/common/procApplyQltwtrChk.do";
+    var url = gContextUrl + "/citizen/common/";
+    url += that.state.minwonGubun == "A03" ? "addMtrRloc.do" : "procApplyTubeRloc.do";
     var queryString = this.getQueryString();
 
     fetch('POST', url, queryString, function (error: any, data: any) {
@@ -265,39 +242,47 @@ export default class A07DetailPage {
 
       cyberMinwon.setResult(that.state.description.minwonNm, that, 'getResultView');
 
-//      that.render();
     });
   }
 
   getQueryString() {
-    const requestInfo = this.state.requestInfo;
 
-    const requestData = {
-      // 통합 민원 데이터 셋 바인딩
-      'reasonTy': requestInfo.reasonTy,
-      'reasonNm': requestInfo.reasonNm,
-      'minwonCont': requestInfo.contents,
-      'visitPlan': requestInfo.visitPlan.replace(/[^0-9]/g,""),
-      'useNm': this.state.parent.state.applicationPage.applicantInfo.state.applyInfo.applyName
-    };
+    const requestInfo = this.state.requestInfo;
+    const suyongaInfo = this.state.parent.state.applicationPage.suyongaInfo.state.suyongaInfo;
+
+    // 데이터 셋 바인딩
+    let requestData = {};
+    if(this.state.minwonGubun == "A03"){
+      requestData = {
+        'constDt': requestInfo.constDt.replace(/[^0-9]/g,""),
+        'contents': requestInfo.contents
+      };
+    }else{
+      requestData = {
+        'compDt': requestInfo.constDt.replace(/[^0-9]/g,""),
+        'etc': requestInfo.contents,
+        'construct': suyongaInfo.idtCdS,
+        'houseCnt': suyongaInfo.hshldCnt
+      };
+    }
 
     return {
       ...this.state.parent.state.applicationPage.getSuyongaQueryString(),
-      'cvplInfo.cvpl.minwonCd': this.state.minwonCd,
+      'cvplInfo.cvpl.minwonCd': this.state.minwonGubun,
       ...requestData
     };
   }
   
   getStatusString() {
-  	const that = this;
+    const statusInfo = this.state.statusInfo;
     
   }
 
 
   render() {
-  	const that = this;
-
-  	
+    const that = this;
+//    that.getDescription();
+    
     let template = `
       <!-- 민원안내 -->
       <div class="mw-box" id="desc">
@@ -309,44 +294,45 @@ export default class A07DetailPage {
       </div><!-- // mw-box -->     
       <!-- 신청내용 -->
       <div class="mw-box">
-      <!-- 수질검사 신청 -->
+      <!-- 수도계량기 및 상수도관 이설 신청 -->
       <div id="form-mw23" class="row">
         <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw23');" class="off" title="닫기">
         <span class="i-01">${that.state.description.minwonNm}</span></a></div>
         <div class="form-mw-box display-block row">
           <div class="form-mv row">
             <ul>
-              <li class="select-input">
-	              <label for="reasonTy" class="input-label"><span class="form-req"><span class="sr-only">필수</span>검사유형</span></label>
-	              <select id="reasonTy" name="reasonTy" title="수질검사 유형" class="input-box input-w-2"
-	              	onchange="${that.path}.handleChangeReason(this)">
-	              	<option value="" selected="selected">선택</option>
-	              </select>
-	              <input type="text" id="reasonNm" name="reasonNm" class="input-box input-w-2" title="수질검사 유형명" maxlength="100" placeholder="필수로 입력해 주세요."
-                	value="${that.state.requestInfo.reasonNm}"
-                	onchange="${that.path}.handleChangeReasonNm(event)"
-                	onpaste="${that.path}.handleChangeReasonNm(event)">
+              <li>
+                <label class="input-label-1"><span class="form-req"><span class="sr-only">필수</span>신청 민원을 선택해 주세요.</span></label>
+                <ul class="mw-opt mw-opt-2 row">
+                  <li id="aGubun1" class="aGubun on">
+                    <a href="javascript:void(0);" onclick="${that.path}.toggleUIGubun('A03', '#aGubun1', '.aGubun');"><span>수용가 자체 이설</span></a>
+                  </li>
+                  <li id="aGubun2" class="aGubun off">
+                    <a href="javascript:void(0);" onclick="${that.path}.toggleUIGubun('A10', '#aGubun2', '.aGubun');"><span>수도사업소 이설</span></a>
+                  </li>
+                </ul>
               </li>
               <li>
-                <label class="input-label-1"><span class="form-req"><span class="sr-only">필수</span>신청내용을 입력해 주세요.</span></label>
-                <textarea name="contents" id="contents" class="textarea-box" title="신청내용" maxlength="1500"
-                	onkeyup="${that.path}.handleChangeContents(event)"
-                	onchange="${that.path}.handleChangeContents(event)">${that.state.requestInfo.contents}</textarea>
-              </li>
+                <label for="constDt" class="input-label"><span class="form-req"><span class="sr-only">필수</span>이설희망일</span></label>
+                <input type="date" id="constDt" name="constDt" class="input-box input-w-fix" min="1000-01-01" max="2100-12-31" maxlength="10"
+                  value="${that.state.requestInfo.constDt.replace(/[^0-9]/g,"").substring(0,4)+"-"+that.state.requestInfo.constDt.replace(/[^0-9]/g,"").substring(4,6)+"-"+that.state.requestInfo.constDt.replace(/[^0-9]/g,"").substring(6,8)}"
+                  onchange="${that.path}.handleChangeConstDt(event)">
+                
+              </li>  
               <li>
-                <label for="visitPlan" class="input-label">방문 희망일</label>
-                <input type="date" id="visitPlan" name="visitPlan" class="input-box input-w-2 datepicker" title="방문 희망일" maxlength="10"
-                  value="${that.state.requestInfo.visitPlan}" min="1000-01-01" max="2100-12-31"
-                  onchange="${that.path}.handleChangeVisitPlan(event)">
+                <label class="input-label-1"><span class="form-req"><span class="sr-only">필수</span>신청내용(사유)를 입력해 주세요.</span></label>
+                <textarea name="contents" id="contents" class="textarea-box" title="신청내용(사유)" maxlength="1500"
+                  onkeyup="${that.path}.handleChangeContents(event)"
+                  onchange="${that.path}.handleChangeContents(event)">${that.state.requestInfo.contents}</textarea>
               </li>
             </ul>
           </div>
         </div><!-- //form-mw-box -->
       </div><!-- //form-mw23 -->
       </div><!-- //mw-box -->    
-      `;
+    `;
 
-      document.getElementById('minwonRoot')!.innerHTML = template;
+    document.getElementById('minwonRoot')!.innerHTML = template;
 
     this.renderDescription(document.getElementById('desc'));
     
@@ -355,18 +341,24 @@ export default class A07DetailPage {
   
   // 기본 설정값은 여기에서 랜더링 해야 한다.
   afterRender() {
-  	const that = this;
-  	//계량기교체사유
-//  	fncSetComboByCodeList("reasonTy", that.state.statusInfo.comboReasonTy);
-  	fncSetCombo("reasonTy", "codeId", "etc", that.state.statusInfo.comboReasonTy);
-  	$("#reasonTy").val(that.state.requestInfo.reasonTy ? that.state.requestInfo.reasonTy : $("#reasonTy option:selected").val())
-    							 .trigger("change");
-
+    const that = this;
+    let minwonCd = that.state.minwonGubun;
+    if(minwonCd === "A03"){
+      that.toggleUIGubun(minwonCd, '#aGubun1', '.aGubun');
+    }else{
+      that.toggleUIGubun(minwonCd, '#aGubun2', '.aGubun');
+    }
+//    $("#aGubun2").addClass("disable");
+//    $("#aGubun1").addClass("on");
+//    that.state.minwonGubun == "A03" ? $("#aGubun2").addClass("disable") : $("#aGubun1").addClass("disable") ;
+//    that.state.minwonGubun == "A03" ? $("#aGubun1").addClass("on")    : $("#aGubun2").addClass("on");
+    
   }
+  
 
   renderDescription(target: any) {
-  	const that = this;
-  	
+    const that = this;
+    
     let desc = `
         <div id="form-mw0" class="row">
           <div class="tit-mw-h3"><a href="javascript:void(0);" onClick="toggleLayer('#form-mw0');" class="on" title="펼치기">
