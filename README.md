@@ -20,7 +20,7 @@
 * 개발팀에서 제약사항을 고려한 UI 작성에 기술적인 난색을 표명하여 PM으로 직접 기반 코드를 작성하여 제공한 내용이다. 기존 레거시 코드를 유지 보수하는 공수가 너무 많이 들어(페이지 당 평균 5000라인 이상의 jsp 코드) 그 부분을 제거하기 위한 목적이다.
 
 ## 데모 Video
-<iframe width="560" height="315" src="https://www.youtube.com/embed/iRlp-FCfQKs?si=vPTzWAneeBmbCu_D" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[<img src="http://img.youtube.com/vi/iRlp-FCfQKs/0.jpg" width="50%">](https://www.youtube.com/embed/iRlp-FCfQKs?si=vPTzWAneeBmbCu_D)
 
 
 ## 기술적 제약사항
