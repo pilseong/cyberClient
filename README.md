@@ -20,7 +20,7 @@
 * 개발팀에서 제약사항을 고려한 UI 작성에 기술적인 난색을 표명하여 PM으로 직접 기반 코드를 작성하여 제공한 내용이다. 기존 레거시 코드를 유지 보수하는 공수가 너무 많이 들어(페이지 당 평균 5000라인 이상의 jsp 코드) 그 부분을 제거하기 위한 목적이다.
 
 ## 데모 Video
- [![링크](https://img.youtube.com/vi/iRlp-FCfQKs/0.jpg)](https://www.youtube.com/watch?v=iRlp-FCfQKs)
+ [![링크](https://img.youtube.com/vi/iRlp-FCfQKs/0.jpg)](https://www.youtube.com/watch?v=iRlp-FCfQKs){:target="_blank"}
 
 
 ## 기술적 제약사항
@@ -43,8 +43,8 @@
 * 클라이언트 프레임워크가 없는 환경에서 어떻게 Single Page Application을 쉽게 구현할 수 있는지  
 예시를 보이기 위해 Repository를 남겨 두었다.
 # 오픈 상황
-* ~~현재 오픈되지 않았지만 실개발링크를 남겨둔다.~~ [링크](https://i121.seoul.go.kr:38090/citizen/common/nCitizenCivilList.do?userKey=)
-* 2023.12월 현재 실서비스가 오픈되어 있다. [링크](https://i121.seoul.go.kr/cs/cyber/front/cvplsvc/NR_index.do?_m=m2_1)
+* ~~현재 오픈되지 않았지만 실개발링크를 남겨둔다.~~ [링크](https://i121.seoul.go.kr:38090/citizen/common/nCitizenCivilList.do?userKey=){:target="_blank"}
+* 2023.12월 현재 실서비스가 오픈되어 있다. [링크](https://i121.seoul.go.kr/cs/cyber/front/cvplsvc/NR_index.do?_m=m2_1){:target="_blank"}
 
 
 # 각 디렉토리 설명
