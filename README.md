@@ -2,6 +2,7 @@
 ## 설명
 * 3-4 페이지의 이동이 가능하고 다양한 민원을 같이 신청할 수 있는 JavaScript 클라이언트
 * Single Page Application only with pure TypeScript, Webpack
+
 ## 배경
 * Product Manager으로 해당 UX, UI부분에 대한 개선요구가 많음을 인지하고 있었고, 보안적인 부분에서도 개선이 필요했다.
 * 해당 서비스는 30종 이상의 민원을 신청하기 위한 민원 클라이언트이다. 
@@ -17,6 +18,12 @@
 * 보안 개선 분야
   * 간편인증, 공동인증 같은 본인인증, 키보드 보안이 추가되어 있다.
 * 개발팀에서 제약사항을 고려한 UI 작성에 기술적인 난색을 표명하여 PM으로 직접 기반 코드를 작성하여 제공한 내용이다. 기존 레거시 코드를 유지 보수하는 공수가 너무 많이 들어(페이지 당 평균 5000라인 이상의 jsp 코드) 그 부분을 제거하기 위한 목적이다.
+
+![image](https://github.com/pilseong/cyberClient/assets/19240446/b512224a-7f2e-4e0e-ad98-71fb381d1f80)
+
+* 데모 Video
+ [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/iRlp-FCfQKs/0.jpg)](https://www.youtube.com/watch?v=iRlp-FCfQKs)
+
 ## 기술적 제약사항
 * 이 프로그램은 Single Page Application을 React 같은 프레임워크를 사용하지 않고 순수 TypeScript로 작성한 특정 서비스의 클라이언트이다.
 * TypeScript로 작성한 이유는 
@@ -39,7 +46,6 @@
 # 오픈 상황
 * ~~현재 오픈되지 않았지만 실개발링크를 남겨둔다.~~ [링크](https://i121.seoul.go.kr:38090/citizen/common/nCitizenCivilList.do?userKey=)
 * 2023.12월 현재 실서비스가 오픈되어 있다. [링크](https://i121.seoul.go.kr/cs/cyber/front/cvplsvc/NR_index.do?_m=m2_1)
-* 데모 Video [링크](https://www.youtube.com/watch?v=iRlp-FCfQKs)
 
 
 # 각 디렉토리 설명
@@ -63,4 +69,3 @@
 * 처음에 js로 만들었다가 개발자들이 디버깅 문제를 호소하여 TypeScript로 변환한 과정에 있던 소스이기 때문에 js와 ts가 혼재되어 있다. 그리고 이 시점에서는 ts도 깊은 타입을 사용하지 않고 있어 그냥 js로 봐도 무방하다.
 
 
-![image](https://github.com/pilseong/cyberClient/assets/19240446/b512224a-7f2e-4e0e-ad98-71fb381d1f80)
