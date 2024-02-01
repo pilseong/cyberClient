@@ -19,10 +19,9 @@
   * 간편인증, 공동인증 같은 본인인증, 키보드 보안이 추가되어 있다.
 * 개발팀에서 제약사항을 고려한 UI 작성에 기술적인 난색을 표명하여 PM으로 직접 기반 코드를 작성하여 제공한 내용이다. 기존 레거시 코드를 유지 보수하는 공수가 너무 많이 들어(페이지 당 평균 5000라인 이상의 jsp 코드) 그 부분을 제거하기 위한 목적이다.
 
-![image](https://github.com/pilseong/cyberClient/assets/19240446/b512224a-7f2e-4e0e-ad98-71fb381d1f80)
+## 데모 Video
+ [![링크](https://img.youtube.com/vi/iRlp-FCfQKs/0.jpg)](https://www.youtube.com/watch?v=iRlp-FCfQKs)
 
-* 데모 Video
- [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/iRlp-FCfQKs/0.jpg)](https://www.youtube.com/watch?v=iRlp-FCfQKs)
 
 ## 기술적 제약사항
 * 이 프로그램은 Single Page Application을 React 같은 프레임워크를 사용하지 않고 순수 TypeScript로 작성한 특정 서비스의 클라이언트이다.
@@ -69,3 +68,4 @@
 * 처음에 js로 만들었다가 개발자들이 디버깅 문제를 호소하여 TypeScript로 변환한 과정에 있던 소스이기 때문에 js와 ts가 혼재되어 있다. 그리고 이 시점에서는 ts도 깊은 타입을 사용하지 않고 있어 그냥 js로 봐도 무방하다.
 
 
+![image](https://github.com/pilseong/cyberClient/assets/19240446/b512224a-7f2e-4e0e-ad98-71fb381d1f80)
